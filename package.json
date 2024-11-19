@@ -115,11 +115,13 @@
   },
   "scripts": {
     "build:webview": "cd webview-ui && npm run build",
+    "changeset": "changeset",
     "check-types": "tsc --noEmit",
     "co:login": "scripts/codeartifact-login.sh",
+    "co:install": "npm run co:login && npm i",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "compile-tests": "tsc -p . --outDir out",
-    "install:all": "npm run co:install && npm install && cd webview-ui && npm install",
+    "install:all": "npm run co:install && cd webview-ui && npm install",
     "install:cline": "scripts/install-cline-latest.sh",
     "lint": "eslint src --ext ts",
     "package": "npm run build:webview && npm run check-types && npm run lint && node esbuild.js --production",
@@ -128,6 +130,8 @@
     "test": "vscode-test",
     "test:webview": "cd webview-ui && npm run test",
     "publish:marketplace": "vsce publish && ovsx publish",
+    "publish": "npm run build && changeset publish && npm install --package-lock-only",
+    "version-packages": "changeset version && npm install --package-lock-only",
     "vscode:prepublish": "npm run package",
     "vsix": "npx vsce package --out bin",
     "watch": "npm-run-all -p watch:*",
@@ -136,6 +140,7 @@
     "watch-tests": "tsc -p . -w --outDir out"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "@types/diff": "^5.2.1",
     "@types/jest": "^29.5.14",
     "@types/mocha": "^10.0.7",

@@ -46,9 +46,27 @@
 
 After installation, Roo Cline will appear in your Cursor's installed extensions list. You can verify this by opening Cursor's Extensions panel (Cmd/Ctrl+Shift+X) and checking under the "Installed" section.
 
----
+### Publishing
 
-# Cline (prev. Claude Dev) – \#1 on OpenRouter
+We use [changesets](https://github.com/changesets/changesets) for versioning and publishing this package. To make changes:
+
+1. Create a PR with your changes
+2. Create a new changeset by running `npm run changeset`
+   - Select the appropriate kind of change - `patch` for bug fixes, `minor` for new features, or `major` for breaking changes
+   - Write a clear description of your changes that will be included in the changelog
+3. Get the PR approved
+4. Merge it
+
+Once your merge is successful:
+- The release workflow will automatically create a new "Version Packages" PR
+- This PR will:
+  - Update the version based on your changeset
+  - Update the CHANGELOG.md file
+  - Create a git tag
+- The PR will be automatically approved and merged
+- A new version will be published
+
+---
 
 <p align="center">
   <img src="https://media.githubusercontent.com/media/cline/cline/main/assets/docs/demo.gif" width="100%" />
@@ -108,7 +126,7 @@ The extension also keeps track of total tokens and API usage cost for the entire
 
 Thanks to the new [shell integration updates in VSCode v1.93](https://code.visualstudio.com/updates/v1_93#_terminal-shell-integration-api), Cline can execute commands directly in your terminal and receive the output. This allows him to perform a wide range of tasks, from installing packages and running build scripts to deploying applications, managing databases, and executing tests, all while adapting to your dev environment & toolchain to get the job done right.
 
-For long running processes like dev servers, use the "Proceed While Running" button to let Cline continue in the task while the command runs in the background. As Cline works he’ll be notified of any new terminal output along the way, letting him react to issues that may come up, such as compile-time errors when editing files.
+For long running processes like dev servers, use the "Proceed While Running" button to let Cline continue in the task while the command runs in the background. As Cline works he'll be notified of any new terminal output along the way, letting him react to issues that may come up, such as compile-time errors when editing files.
 
 <!-- Transparent pixel to create line break after floating image -->
 
