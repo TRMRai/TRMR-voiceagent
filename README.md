@@ -21,7 +21,7 @@
     ```
 2. Build the VSIX file:
    ```bash
-   npm run vsix
+   npm run build
    ```
 3. The new VSIX file will be created in the `bin/` directory
 4. Commit the new VSIX file to git:

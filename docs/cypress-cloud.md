@@ -1,0 +1,2 @@
+Could you navigate to this URL in interactive mode (isInteractive = true), and keep it open while I chat with you, DO NOT DO ANYTHING UNTIL I TELL YOU TO CONTINUE.
+https://cloud.cypress.io/projects/hkawvm/runs/22055/overview/b890f243-ce56-4047-9252-c99469dfbbea?roarHideRunsWithDiffGroupsAndTags=1&interactive=true

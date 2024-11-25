@@ -73,6 +73,7 @@ export class Cline {
 	private urlContentFetcher: UrlContentFetcher
 	private browserSession: BrowserSession
 	private didEditFile: boolean = false
+	private isInteractiveMode: boolean = false
 	customInstructions?: string
 	alwaysAllowReadOnly: boolean
 	alwaysAllowWrite: boolean
@@ -1441,103 +1442,139 @@ export class Cline {
 								if (action === "launch") {
 									if (!url) {
 										this.consecutiveMistakeCount++
-										pushToolResult(
-											await this.sayAndCreateMissingParamError("browser_action", "url")
-										)
+										pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "url"))
 										await this.browserSession.closeBrowser()
 										break
 									}
-									this.consecutiveMistakeCount = 0
-									const didApprove = await askApproval("browser_action_launch", url)
-									if (!didApprove) {
-										break
-									}
-
-									// NOTE: it's okay that we call this message since the partial inspect_site is finished streaming. The only scenario we have to avoid is sending messages WHILE a partial message exists at the end of the messages array. For example the api_req_finished message would interfere with the partial message, so we needed to remove that.
-									// await this.say("inspect_site_result", "") // no result, starts the loading spinner waiting for result
-									await this.say("browser_action_result", "") // starts loading spinner
-
-									await this.browserSession.launchBrowser()
-									browserActionResult = await this.browserSession.navigateToUrl(url)
-								} else {
-									if (action === "click") {
-										if (!coordinate) {
-											this.consecutiveMistakeCount++
-											pushToolResult(
-												await this.sayAndCreateMissingParamError("browser_action", "coordinate")
-											)
-											await this.browserSession.closeBrowser()
-											break // can't be within an inner switch
-										}
-									}
-									if (action === "type") {
-										if (!text) {
-											this.consecutiveMistakeCount++
-											pushToolResult(
-												await this.sayAndCreateMissingParamError("browser_action", "text")
-											)
-											await this.browserSession.closeBrowser()
+					
+									// Check if this is an interactive mode request
+									const isInteractiveRequest = url.toLowerCase().includes("interactive=true")
+									const actualUrl = isInteractiveRequest ? url.replace(/[?&]interactive=true/i, '') : url
+									
+									if (isInteractiveRequest) {
+										this.isInteractiveMode = true
+										this.consecutiveMistakeCount = 0
+										const didApprove = await askApproval("browser_action_launch", 
+											`Launch browser in interactive mode for URL: ${actualUrl}`)
+										if (!didApprove) {
 											break
 										}
-									}
-									this.consecutiveMistakeCount = 0
-									await this.say(
-										"browser_action",
-										JSON.stringify({
-											action: action as BrowserAction,
-											coordinate,
-											text,
-										} satisfies ClineSayBrowserAction),
-										undefined,
-										false
-									)
-									switch (action) {
-										case "click":
-											browserActionResult = await this.browserSession.click(coordinate!)
-											break
-										case "type":
-											browserActionResult = await this.browserSession.type(text!)
-											break
-										case "scroll_down":
-											browserActionResult = await this.browserSession.scrollDown()
-											break
-										case "scroll_up":
-											browserActionResult = await this.browserSession.scrollUp()
-											break
-										case "close":
-											browserActionResult = await this.browserSession.closeBrowser()
-											break
-									}
-								}
-
-								switch (action) {
-									case "launch":
-									case "click":
-									case "type":
-									case "scroll_down":
-									case "scroll_up":
+					
+										await this.browserSession.launchBrowser(true)
+										browserActionResult = await this.browserSession.navigateToUrl(actualUrl)
+										
 										await this.say("browser_action_result", JSON.stringify(browserActionResult))
 										pushToolResult(
 											formatResponse.toolResult(
-												`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
-													browserActionResult.logs || "(No new logs)"
-												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+												`Browser launched in interactive mode. The browser will remain open for manual interaction until explicitly closed. You can:\n` +
+												`1. Keep browsing\n` +
+												`2. Take another action\n` +
+												`3. Close the browser\n\n` +
+												`Console logs:\n${browserActionResult.logs || "(No new logs)"}`,
 												browserActionResult.screenshot ? [browserActionResult.screenshot] : []
 											)
 										)
 										break
-									case "close":
+									} else {
+										this.isInteractiveMode = false
+										this.consecutiveMistakeCount = 0
+										const didApprove = await askApproval("browser_action_launch", url)
+										if (!didApprove) {
+											break
+										}
+
+									// NOTE: it's okay that we call this message since the partial inspect_site is finished streaming. The only scenario we have to avoid is sending messages WHILE a partial message exists at the end of the messages array. For example the api_req_finished message would interfere with the partial message, so we needed to remove that.
+									// await this.say("inspect_site_result", "") // no result, starts the loading spinner waiting for result
+
+										await this.say("browser_action_result", "") // starts loading spinner
+					
+										await this.browserSession.launchBrowser()
+										browserActionResult = await this.browserSession.navigateToUrl(actualUrl)
+									}
+									
+								} else if (action === "close") {
+									// Handle close action for interactive mode
+									if (this.isInteractiveMode) {
+										browserActionResult = await this.browserSession.closeBrowser()
+										if (browserActionResult.logs?.includes("Would you like to:")) {
+											// Browser is asking for confirmation
+											await this.say("browser_action_result", JSON.stringify(browserActionResult))
+											pushToolResult(
+												formatResponse.toolResult(
+													`The browser is in interactive mode. Please confirm if you want to:\n` +
+													`1. Keep browsing\n` +
+													`2. Take another action\n` +
+													`3. Close the browser`,
+													browserActionResult.screenshot ? [browserActionResult.screenshot] : []
+												)
+											)
+											break
+										}
+										this.isInteractiveMode = false
+									} else {
+										browserActionResult = await this.browserSession.closeBrowser()
+									}
+								} else {
+									// Handle other actions (click, type, scroll)
+									if (this.isInteractiveMode) {
 										pushToolResult(
 											formatResponse.toolResult(
-												`The browser has been closed. You may now proceed to using other tools.`
+												`Cannot perform browser actions while in interactive mode. The user has manual control. You can:\n` +
+												`1. Keep browsing\n` +
+												`2. Take another action\n` +
+												`3. Close the browser`
 											)
 										)
 										break
+									}
+					
+									if (action === "click") {
+										if (!coordinate) {
+											this.consecutiveMistakeCount++
+											pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "coordinate"))
+											await this.browserSession.closeBrowser()
+											break
+										}
+										browserActionResult = await this.browserSession.click(coordinate)
+									} else if (action === "type") {
+										if (!text) {
+											this.consecutiveMistakeCount++
+											pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "text"))
+											await this.browserSession.closeBrowser()
+											break
+										}
+										browserActionResult = await this.browserSession.type(text)
+									} else if (action === "scroll_down") {
+										browserActionResult = await this.browserSession.scrollDown()
+									} else if (action === "scroll_up") {
+										browserActionResult = await this.browserSession.scrollUp()
+									} else {
+										throw new Error(`Unsupported browser action: ${action}`)
+									}
+								}
+					
+								// Handle results for all actions except interactive mode close confirmation
+								if (action === "close" && !browserActionResult.logs?.includes("Would you like to:")) {
+									pushToolResult(formatResponse.toolResult("Browser has been closed."))
+								} else if (action !== "close") {
+									await this.say("browser_action_result", JSON.stringify(browserActionResult))
+									pushToolResult(
+										formatResponse.toolResult(
+											`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
+												browserActionResult.logs || "(No new logs)"
+											}\n\n${
+												this.isInteractiveMode ?
+												"The browser is in interactive mode. You can:\n1. Keep browsing\n2. Take another action\n3. Close the browser" :
+												"(REMEMBER: if you need to proceed to using non-`browser_action` tools or launch a new browser, you MUST first close this browser.)"
+											}`,
+											browserActionResult.screenshot ? [browserActionResult.screenshot] : []
+										)
+									)
 								}
 								break
 							}
 						} catch (error) {
-							await this.browserSession.closeBrowser() // if any error occurs, the browser session is terminated
+							await this.browserSession.closeBrowser()
 							await handleError("executing browser action", error)
 							break
 						}
@@ -1681,15 +1718,13 @@ export class Cline {
 									break
 								}
 								this.consecutiveMistakeCount = 0
-
+					
 								let commandResult: ToolResponse | undefined
 								if (command) {
 									if (lastMessage && lastMessage.ask !== "command") {
-										// havent sent a command message yet so first send completion_result then command
 										await this.say("completion_result", result, undefined, false)
 									}
-
-									// complete command message
+					
 									const didApprove = await askApproval("command", command)
 									if (!didApprove) {
 										break
@@ -1700,20 +1735,22 @@ export class Cline {
 										pushToolResult(execCommandResult)
 										break
 									}
-									// user didn't reject, but the command may have output
 									commandResult = execCommandResult
 								} else {
 									await this.say("completion_result", result, undefined, false)
 								}
-
-								// we already sent completion_result says, an empty string asks relinquishes control over button and field
+					
 								const { response, text, images } = await this.ask("completion_result", "", false)
 								if (response === "yesButtonClicked") {
-									pushToolResult("") // signals to recursive loop to stop (for now this never happens since yesButtonClicked will trigger a new task)
+									// Only close browser if not in interactive mode
+									if (!this.browserSession.isInInteractiveMode) {
+										await this.browserSession.closeBrowser()
+									}
+									pushToolResult("")
 									break
 								}
 								await this.say("user_feedback", text ?? "", images)
-
+					
 								const toolResults: (Anthropic.TextBlockParam | Anthropic.ImageBlockParam)[] = []
 								if (commandResult) {
 									if (typeof commandResult === "string") {
@@ -1732,11 +1769,11 @@ export class Cline {
 									text: `${toolDescription()} Result:`,
 								})
 								this.userMessageContent.push(...toolResults)
-
+					
 								break
 							}
 						} catch (error) {
-							await handleError("inspecting site", error)
+							await handleError("completing task", error)
 							break
 						}
 					}
