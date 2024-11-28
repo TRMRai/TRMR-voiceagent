@@ -66,6 +66,30 @@ Once your merge is successful:
 - The PR will be automatically approved and merged
 - A new version will be published
 
+### Browser Actions
+
+The browser action tool allows Cline to interact with web pages through a Puppeteer-controlled browser. This can be used in two modes:
+
+#### Interactive Mode
+- Triggered by adding the string `interactive mode` to your prompt, it also requires the string `(browserPort = 7333)`, where the port number can be modified.
+- Requires a browser instance running on the specified port, ex: `/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --remote-debugging-port=7333`
+- Useful for debugging and development scenarios where you need to interact with a running browser
+
+#### Non-Interactive Mode
+- Default mode when no `interactive mode` string is present in your prompt
+- Launches a new browser instance for each session
+- Better suited for quick simple browser tasks, ex: testing a URL
+
+The browser action, in both modes, supports operations like:
+- Launching a browser at a specified URL
+- Clicking elements at specific coordinates
+- Typing text
+- Scrolling the page
+- Capturing screenshots and console logs
+- Closing the browser
+
+Each browser action provides feedback through screenshots and console logs, allowing for detailed interaction tracking and debugging.
+
 ---
 
 <p align="center">
