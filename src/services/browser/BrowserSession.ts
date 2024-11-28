@@ -6,6 +6,7 @@ import pWaitFor from "p-wait-for"
 import delay from "delay"
 import { fileExistsAtPath } from "../../utils/fs"
 import { BrowserActionResult } from "../../shared/ExtensionMessage"
+import axios from 'axios'
 
 export class BrowserSession {
 	private context: vscode.ExtensionContext
@@ -34,10 +35,9 @@ export class BrowserSession {
 
 		if (this.isInteractive) {
 			try {
-				// Fetch the WebSocket endpoint from Chrome's debugging API
-				const response = await fetch(`http://127.0.0.1:${this.browserPort}/json/version`)
-				const data = await response.json()
-				const browserWSEndpoint = data.webSocketDebuggerUrl
+				// Fetch the WebSocket endpoint from Chrome's debugging API using axios
+				const response = await axios.get(`http://127.0.0.1:${this.browserPort}/json/version`)
+				const browserWSEndpoint = response.data.webSocketDebuggerUrl
 	
 				if (!browserWSEndpoint) {
 					throw new Error(`BrowserSession.ts :: launchBrowser :: Could not get webSocketDebuggerUrl from Chrome debugging API, port: ${this.browserPort}`)
@@ -47,8 +47,8 @@ export class BrowserSession {
 					browserWSEndpoint,
 				})
 			} catch (error) {
-				console.error("BrowserSession.ts :: launchBrowser :: Failed to connect to browser, make sure you have a running browser with --remote-debugging-port=7333", error)
-				throw new Error(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser: ${error.message}, make sure you have a running browser with --remote-debugging-port=7333`)
+				console.error(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser, make sure you have a running browser with --remote-debugging-port=${this.browserPort}`, error)
+				throw new Error(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser: ${error.message}, make sure you have a running browser with --remote-debugging-port=${this.browserPort}`)
 			}
 		} else {
 			this.browser = await launch({

@@ -2,4 +2,4 @@
 "roo-cline": minor
 ---
 
-Enabled Roo Cline to use pupetteer to prompt a browser and manually authenticate to site it cant by itself
+Enabled Roo Cline to use puppeteer and connect to a current browser which is already authenticated to multiple sites.
