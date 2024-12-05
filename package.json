@@ -5,7 +5,6 @@
   "publisher": "RooVeterinaryInc",
   "version": "2.1.2", 
   "files": [
-    "bin/roo-cline-2.1.2.vsix", 
     "assets/icons/icon_Roo.png"
   ],
   "icon": "assets/icons/icon_Roo.png",
