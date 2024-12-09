@@ -61,8 +61,10 @@ type GlobalStateKey =
 	| "azureApiVersion"
 	| "openRouterModelId"
 	| "openRouterModelInfo"
+	| "openRouterUseMiddleOutTransform"
 	| "allowedCommands"
 	| "soundEnabled"
+	| "diffEnabled"
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -200,12 +202,14 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		const { 
 			apiConfiguration, 
 			customInstructions, 
+			diffEnabled,
 		} = await this.getState()
 		
 		this.cline = new Cline(
 			this, 
 			apiConfiguration, 
 			customInstructions, 
+			diffEnabled,
 			task, 
 			images
 		)
@@ -216,12 +220,14 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		const { 
 			apiConfiguration, 
 			customInstructions, 
+			diffEnabled,
 		} = await this.getState()
 		
 		this.cline = new Cline(
 			this,
 			apiConfiguration,
 			customInstructions,
+			diffEnabled,
 			undefined,
 			undefined,
 			historyItem,
@@ -391,6 +397,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 								azureApiVersion,
 								openRouterModelId,
 								openRouterModelInfo,
+								openRouterUseMiddleOutTransform,
 							} = message.apiConfiguration
 							await this.updateGlobalState("apiProvider", apiProvider)
 							await this.updateGlobalState("apiModelId", apiModelId)
@@ -416,6 +423,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("azureApiVersion", azureApiVersion)
 							await this.updateGlobalState("openRouterModelId", openRouterModelId)
 							await this.updateGlobalState("openRouterModelInfo", openRouterModelInfo)
+							await this.updateGlobalState("openRouterUseMiddleOutTransform", openRouterUseMiddleOutTransform)
 							if (this.cline) {
 								this.cline.api = buildApiHandler(message.apiConfiguration)
 							}
@@ -529,9 +537,14 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						}
 						break
 					case "soundEnabled":
-						const enabled = message.bool ?? true
-						await this.updateGlobalState("soundEnabled", enabled)
-						setSoundEnabled(enabled)
+						const soundEnabled = message.bool ?? true
+						await this.updateGlobalState("soundEnabled", soundEnabled)
+						setSoundEnabled(soundEnabled)  // Add this line to update the sound utility
+						await this.postStateToWebview()
+						break
+					case "diffEnabled":
+						const diffEnabled = message.bool ?? true
+						await this.updateGlobalState("diffEnabled", diffEnabled)
 						await this.postStateToWebview()
 						break
 				}
@@ -840,6 +853,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			alwaysAllowExecute,
 			alwaysAllowBrowser,
 			soundEnabled,
+			diffEnabled,
 			taskHistory,
 		} = await this.getState()
 		
@@ -860,7 +874,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			taskHistory: (taskHistory || [])
 				.filter((item) => item.ts && item.task)
 				.sort((a, b) => b.ts - a.ts),
-			soundEnabled: soundEnabled ?? true,
+			soundEnabled: soundEnabled ?? false,
+			diffEnabled: diffEnabled ?? false,
 			shouldShowAnnouncement: lastShownAnnouncementId !== this.latestAnnouncementId,
 			allowedCommands,
 		}
@@ -943,6 +958,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			azureApiVersion,
 			openRouterModelId,
 			openRouterModelInfo,
+			openRouterUseMiddleOutTransform,
 			lastShownAnnouncementId,
 			customInstructions,
 			alwaysAllowReadOnly,
@@ -952,6 +968,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			taskHistory,
 			allowedCommands,
 			soundEnabled,
+			diffEnabled,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -977,6 +994,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("azureApiVersion") as Promise<string | undefined>,
 			this.getGlobalState("openRouterModelId") as Promise<string | undefined>,
 			this.getGlobalState("openRouterModelInfo") as Promise<ModelInfo | undefined>,
+			this.getGlobalState("openRouterUseMiddleOutTransform") as Promise<boolean | undefined>,
 			this.getGlobalState("lastShownAnnouncementId") as Promise<string | undefined>,
 			this.getGlobalState("customInstructions") as Promise<string | undefined>,
 			this.getGlobalState("alwaysAllowReadOnly") as Promise<boolean | undefined>,
@@ -986,6 +1004,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("taskHistory") as Promise<HistoryItem[] | undefined>,
 			this.getGlobalState("allowedCommands") as Promise<string[] | undefined>,
 			this.getGlobalState("soundEnabled") as Promise<boolean | undefined>,
+			this.getGlobalState("diffEnabled") as Promise<boolean | undefined>,
 		])
 
 		let apiProvider: ApiProvider
@@ -1028,6 +1047,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				azureApiVersion,
 				openRouterModelId,
 				openRouterModelInfo,
+				openRouterUseMiddleOutTransform,
 			},
 			lastShownAnnouncementId,
 			customInstructions,
@@ -1038,6 +1058,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			taskHistory,
 			allowedCommands,
 			soundEnabled,
+			diffEnabled,
 		}
 	}
 

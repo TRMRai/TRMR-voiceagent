@@ -1,9 +1,21 @@
 # Roo-Cline
+A fork of Cline, an autonomous coding agent, with some added experimental configuration and automation features.
+- Auto-approval capabilities for commands, write, and browser operations
+- Support for .clinerules per-project custom instructions
+- Ability to run side-by-side with Cline
+- Code is unit-tested
+- Support for playing sound effects
+- Support for OpenRouter compression
+- Support for editing through diffs (very experimental)
+- Support for gemini-exp-1206
+
+Here's an example of Roo-Cline autonomously creating a snake game with "Always approve write operations" and "Always approve browser actions" turned on:
+
+https://github.com/user-attachments/assets/c2bb31dc-e9b2-4d73-885d-17f1471a4987
 
 ### Installation
 If you want to install the latest extension from the Marketplace, just search for "Roo Cline" in your VSCode-compatible editor's Extensions panel (Cmd/Ctrl+Shift+X).
 
-After installation, Roo Cline will appear in your VSCode-compatible editor's installed extensions list. You can verify this by opening your editor's Extensions panel (Cmd/Ctrl+Shift+X) and checking under the "Installed" section.
 
 ### Testing Builds
 1. Install dependencies:
@@ -86,10 +98,10 @@ Each browser action provides feedback through screenshots and console logs, allo
 <a href="https://discord.gg/cline" target="_blank"><strong>Join the Discord</strong></a>
 </td>
 <td align="center">
-<a href="https://github.com/cline/cline/wiki" target="_blank"><strong>Docs</strong></a>
+<a href="https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><strong>Feature Requests</strong></a>
 </td>
 <td align="center">
-<a href="https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop" target="_blank"><strong>Feature Requests</strong></a>
+<a href="https://cline.bot/join-us" target="_blank"><strong>We're Hiring!</strong></a>
 </td>
 </tbody>
 </table>
@@ -171,7 +183,7 @@ Try asking Cline to "test the app", and watch as he runs a command like `npm run
 
 ## Contributing
 
-To contribute to the project, start by exploring [open issues](https://github.com/cline/cline/issues) or checking our [feature request board](https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop). We'd also love to have you join our [Discord](https://discord.gg/cline) to share ideas and connect with other contributors.
+To contribute to the project, start by exploring [open issues](https://github.com/cline/cline/issues) or checking our [feature request board](https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop). We'd also love to have you join our [Discord](https://discord.gg/cline) to share ideas and connect with other contributors. If you're interested in joining the team, check out our [careers page](https://cline.bot/join-us)!
 
 <details>
 <summary>Local Development Instructions</summary>

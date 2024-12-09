@@ -33,6 +33,7 @@ export interface ApiHandlerOptions {
 	geminiApiKey?: string
 	openAiNativeApiKey?: string
 	azureApiVersion?: string
+	openRouterUseMiddleOutTransform?: boolean
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {
@@ -270,6 +271,14 @@ export const geminiModels = {
 		outputPrice: 0,
 	},
 	"gemini-1.5-pro-exp-0827": {
+		maxTokens: 8192,
+		contextWindow: 2_097_152,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 0,
+		outputPrice: 0,
+	},
+	"gemini-exp-1206": {
 		maxTokens: 8192,
 		contextWindow: 2_097_152,
 		supportsImages: true,
