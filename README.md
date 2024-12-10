@@ -1,19 +1,32 @@
 # Roo-Cline
 
-A fork of Cline, an autonomous coding agent, with some added experimental configuration and automation features.
-- Auto-approval capabilities for commands, write, and browser operations
-- Support for .clinerules per-project custom instructions
-- Ability to run side-by-side with Cline
-- Code is unit-tested
-- Support for playing sound effects
-- Support for OpenRouter compression
-- Support for editing through diffs (very experimental)
-- Support for gemini-exp-1206
+A powerful fork of Cline that enhances the autonomous coding agent with advanced automation and configuration capabilities. Roo-Cline maintains all the powerful features of Cline while adding several experimental features to improve workflow automation and customization.
 
+## Key Features
+
+### 🚀 Enhanced Automation
+- **Auto-approval System**: Configurable auto-approval capabilities for commands, file operations, and browser actions
+- **Project-specific Rules**: Support for `.clinerules` files allowing per-project custom instructions and automation rules
+- **Side-by-side Operation**: Can run simultaneously with the original Cline extension for comparison or different use cases
+
+### 🛠️ Technical Improvements
+- **Diff-based Editing**: Experimental support for editing files through diffs, enabling more precise and trackable code modifications
+- **Compression Support**: Integration with OpenRouter compression to optimize token usage and reduce API costs
+- **Model Support**: Additional model support including gemini-exp-1206
+- **Sound Effects**: Audio feedback for various operations and events
+- **Unit Test Coverage**: Comprehensive test suite for reliable operation
+
+### 🎮 Autonomous Operation Demo
 Here's an example of Roo-Cline autonomously creating a snake game with "Always approve write operations" and "Always approve browser actions" turned on:
 
 https://github.com/user-attachments/assets/c2bb31dc-e9b2-4d73-885d-17f1471a4987
 
+## Getting Started
+
+1. Install Roo-Cline from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline)
+2. Configure your preferred API provider and model in the extension settings
+3. Optionally set up `.clinerules` in your project root for custom automation rules
+4. Start using Roo-Cline with enhanced automation features!
 
 ---
 
