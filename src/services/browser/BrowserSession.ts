@@ -20,15 +20,23 @@ export class BrowserSession {
 		this.context = context
 	}
 
+	private async puppeteerLaunch() {
+		return launch({
+			args: [
+    "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+			],
+			defaultViewport: {
+				width: 1440,
+				height: 900
+			},
+			headless: false, // Always use non-headless mode
+		})
+	}
+
 	async launchBrowser(interactive: boolean = false, port?: string) {
 		console.log("launch browser called")
 		this.isInteractive = interactive
-    	this.browserPort = port ?? this.browserPort
-
-		// Set browserPort if provided, otherwise use default
-		if (port) {
-			this.browserPort = port
-		}
+		this.browserPort = port ?? this.browserPort
 
 		if (this.browser) {
 			await this.closeBrowser() // this may happen when the model launches a browser again after having used it already before
@@ -41,28 +49,24 @@ export class BrowserSession {
 				const browserWSEndpoint = response.data.webSocketDebuggerUrl
 	
 				if (!browserWSEndpoint) {
-					throw new Error(`BrowserSession.ts :: launchBrowser :: Could not get webSocketDebuggerUrl from Chrome debugging API, port: ${this.browserPort}`)
+					console.log("BrowserSession.ts :: launchBrowser :: No webSocketDebuggerUrl found, falling back to regular launch mode")
+					this.isInteractive = false
+				} else {
+					this.browser = await connect({
+						browserWSEndpoint,
+					})
 				}
-	
-				this.browser = await connect({
-					browserWSEndpoint,
-				})
 			} catch (error) {
-				console.error(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser, make sure you have a running browser with --remote-debugging-port=${this.browserPort}`, error)
-				throw new Error(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser: ${error.message}, make sure you have a running browser with --remote-debugging-port=${this.browserPort}`)
+				console.log(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser, falling back to regular launch mode. Error: ${error.message}`)
+				this.isInteractive = false
+			}
+
+			// If interactive mode failed, fall back to regular launch mode
+			if (!this.browser) {
+				this.browser = await this.puppeteerLaunch()
 			}
 		} else {
-			this.browser = await launch({
-				args: [
-					"--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-				],
-				defaultViewport: {
-					width: 1440,
-					height: 900
-				},
-				headless: false, // Always use non-headless mode
-			})
-
+			this.browser = await this.puppeteerLaunch()
 		}
 
 		this.page = await this.browser?.newPage()
@@ -281,3 +285,5 @@ export class BrowserSession {
 		})
 	}
 }
+
+
