@@ -23,6 +23,7 @@ export class BrowserSession {
 	async launchBrowser(interactive: boolean = false, port?: string) {
 		console.log("launch browser called")
 		this.isInteractive = interactive
+    	this.browserPort = port ?? this.browserPort
 
 		// Set browserPort if provided, otherwise use default
 		if (port) {

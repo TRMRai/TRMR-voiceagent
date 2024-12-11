@@ -98,6 +98,8 @@ export class Cline {
 		apiConfiguration: ApiConfiguration,
 		customInstructions?: string,
 		diffEnabled?: boolean,
+		isInteractiveMode?: boolean,
+		browserPort?: string,
 		task?: string,
 		images?: string[],
 		historyItem?: HistoryItem,
@@ -108,6 +110,8 @@ export class Cline {
 		this.urlContentFetcher = new UrlContentFetcher(provider.context)
 		this.browserSession = new BrowserSession(provider.context)
 		this.diffViewProvider = new DiffViewProvider(cwd)
+		this.isInteractiveMode = isInteractiveMode ?? false
+		this.browserPort = browserPort ?? "7333"
 		this.customInstructions = customInstructions
 		if (diffEnabled && this.api.getModel().id) {
 			this.diffStrategy = getDiffStrategy(this.api.getModel().id)
@@ -633,48 +637,29 @@ export class Cline {
 		if (responseImages && responseImages.length > 0) {
 			newUserContent.push(...formatResponse.imageBlocks(responseImages))
 		}
-		const wasInteractiveBrowser = (lastRelevantMessageIndex > 0) ? modifiedClineMessages[lastRelevantMessageIndex - 1].text?.includes("interactive mode") : false
+		const state = await this.providerRef.deref()?.getState()
+		const wasInteractiveBrowser = state?.isInteractiveMode
 		let hadBrowserPort = '';
 		if ( wasInteractiveBrowser ) {
-			const match = modifiedClineMessages[lastRelevantMessageIndex - 1].text?.match(/\(browserPort\s*=\s*(\d+)\)/)
-			if (match) {
-				hadBrowserPort = match[1] ?? this.browserPort;
-				this.providerRef.deref()?.outputChannel.appendLine(`resumeTaskFromHistory :: browserPort :: ${hadBrowserPort}`)
-			}
+			hadBrowserPort = state?.browserPort;
+			this.providerRef.deref()?.outputChannel.appendLine(`resumeTaskFromHistory :: browserPort :: ${hadBrowserPort}`)
 		}
 		await this.overwriteApiConversationHistory(modifiedApiConversationHistory)
 		await this.initiateTaskLoop(newUserContent, wasInteractiveBrowser, hadBrowserPort)
 	}
 
 	private async initiateTaskLoop(userContent: UserContent, wasInteractiveBrowser: boolean = false, hadBrowserPort: string = ''): Promise<void> {
-		// Check if any text block contains "interactive mode"
-		const hasInteractiveMode = userContent.some((block) => {
-			if (block.type === "text" && typeof block.text === "string") {
-				return (block.type === "text" && 
-					typeof block.text === "string" && 
-					block.text.toLowerCase().includes("interactive mode"))
-			} else {
-				return false
-			}
-		}
-		) || wasInteractiveBrowser;
+		const state = await this.providerRef.deref()?.getState()
+		const hasInteractiveMode = state?.isInteractiveMode ?? wasInteractiveBrowser
+
 
 		this.providerRef.deref()?.outputChannel.appendLine(`initiateTaskLoop :: hasInteractiveMode :: ${hasInteractiveMode}`)
 		
 		// Set interactive mode flag if found in text
 		if (hasInteractiveMode) {
 			this.isInteractiveMode = true;
-
-			// Parse browserPort if specified in text blocks
-			userContent.forEach((block) => {
-				if (block.type === "text" && typeof block.text === "string") {
-					const match = block.text.match(/\(browserPort\s*=\s*(\d+)\)/)
-					if (match) {
-						this.browserPort = match[1] ?? hadBrowserPort;
-						this.providerRef.deref()?.outputChannel.appendLine(`initiateTaskLoop :: browserPort :: ${this.browserPort}`)
-					}
-				}
-			})
+			this.browserPort = state?.browserPort ?? hadBrowserPort
+			this.providerRef.deref()?.outputChannel.appendLine(`initiateTaskLoop :: browserPort :: ${this.browserPort}`)
 		}
 	
 		let nextUserContent = userContent;
@@ -1863,12 +1848,25 @@ export class Cline {
 		userContent: UserContent,
 		includeFileDetails: boolean = false,
 		isInteractiveMode: boolean = false,
-		browserPort: string = '7333'
+		browserPort?: string
 	): Promise<boolean> {
+		if (this.presentAssistantMessageHasPendingUpdates) {
+			this.presentAssistantMessage()
+		}
+		
+		const state = await this.providerRef.deref()?.getState()
+		// Use optional chaining and provide defaults
+		this.isInteractiveMode = isInteractiveMode ?? state?.isInteractiveMode ?? false
+		this.browserPort = browserPort ?? state?.browserPort ?? "7333"
+
+		// Store interactive mode state
+		if (state?.isInteractiveMode !== undefined) {
+			this.isInteractiveMode = state.isInteractiveMode
+		}
+
 		if (this.abort) {
 			throw new Error("Cline instance aborted")
 		}
-
 		// Store interactive mode state
 		this.isInteractiveMode = isInteractiveMode;
 
