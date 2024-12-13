@@ -34,6 +34,8 @@ export interface WebviewMessage {
 		| "diffEnabled"
 		| "isInteractiveMode"
     	| "browserPort"
+		| "openMcpSettings"
+		| "restartMcpServer"
 	text?: string
 	askResponse?: ClineAskResponse
 	apiConfiguration?: ApiConfiguration

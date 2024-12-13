@@ -6,9 +6,9 @@ node_modules
 .DS_Store
 
 # Builds
-bin
+bin/
 roo-cline-*.vsix
 
-# Local prompts
+# Local prompts and rules
 prompts
 .clinerules
