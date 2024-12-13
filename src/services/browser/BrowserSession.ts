@@ -1,10 +1,8 @@
 import * as vscode from "vscode"
-import * as fs from "fs/promises"
-import * as path from "path"
 import { Browser, Page, ScreenshotOptions, TimeoutError, launch, connect } from "puppeteer"
 import pWaitFor from "p-wait-for"
 import delay from "delay"
-import { fileExistsAtPath } from "../../utils/fs"
+import { ClineProvider } from "../../core/webview/ClineProvider"
 import { BrowserActionResult } from "../../shared/ExtensionMessage"
 import axios from 'axios'
 
@@ -15,9 +13,11 @@ export class BrowserSession {
 	private currentMousePosition?: string
 	private isInteractive: boolean = false
 	private browserPort: string = '7333'
+	private providerRef: WeakRef<ClineProvider>
 
-	constructor(context: vscode.ExtensionContext) {
+	constructor(context: vscode.ExtensionContext, provider: ClineProvider,) {
 		this.context = context
+		this.providerRef = new WeakRef(provider)
 	}
 
 	private async puppeteerLaunch() {
@@ -33,6 +33,29 @@ export class BrowserSession {
 		})
 	}
 
+	// New method to handle browser connection
+	private async puppeteerConnect(port: string): Promise<Browser | undefined> {
+		try {
+			this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: puppeteerConnect :: ${port}`)
+		  const response = await axios.get(`http://127.0.0.1:${port}/json/version`)
+		  const browserWSEndpoint = response.data.webSocketDebuggerUrl
+	
+		  if (!browserWSEndpoint) {
+			this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: puppeteerConnect :: No webSocketDebuggerUrl found`)
+			console.log("BrowserSession.ts :: puppeteerConnect :: No webSocketDebuggerUrl found")
+			return undefined
+		  }
+	
+		  return await connect({
+			browserWSEndpoint,
+		  })
+		} catch (error) {
+		  this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: puppeteerConnect :: Failed to connect: ${error}`)
+		  console.log("BrowserSession.ts :: puppeteerConnect :: Failed to connect:", error)
+		  return undefined
+		}
+	  }
+
 	async launchBrowser(interactive: boolean = false, port?: string) {
 		console.log("launch browser called")
 		this.isInteractive = interactive
@@ -43,24 +66,7 @@ export class BrowserSession {
 		}
 
 		if (this.isInteractive) {
-			try {
-				// Fetch the WebSocket endpoint from Chrome's debugging API using axios
-				const response = await axios.get(`http://127.0.0.1:${this.browserPort}/json/version`)
-				const browserWSEndpoint = response.data.webSocketDebuggerUrl
-	
-				if (!browserWSEndpoint) {
-					console.log("BrowserSession.ts :: launchBrowser :: No webSocketDebuggerUrl found, falling back to regular launch mode")
-					this.isInteractive = false
-				} else {
-					this.browser = await connect({
-						browserWSEndpoint,
-					})
-				}
-			} catch (error) {
-				console.log(`BrowserSession.ts :: launchBrowser :: Failed to connect to browser, falling back to regular launch mode. Error: ${error.message}`)
-				this.isInteractive = false
-			}
-
+			this.browser = await this.puppeteerConnect(this.browserPort)
 			// If interactive mode failed, fall back to regular launch mode
 			if (!this.browser) {
 				this.browser = await this.puppeteerLaunch()
@@ -69,7 +75,10 @@ export class BrowserSession {
 			this.browser = await this.puppeteerLaunch()
 		}
 
-		this.page = await this.browser?.newPage()
+		// TO DO: Might no longer be needed and this.page = await this.browser?.newPage() could be enough
+		// Get existing pages or create new one
+		const pages = await this.browser.pages()
+		this.page = pages[0] || await this.browser.newPage()
 		await this.page?.setViewport({ 
 			width: 1440, 
 			height: 900,
@@ -78,8 +87,8 @@ export class BrowserSession {
 		  });
 
 		return {
-			screenshot: "",
-			logs: this.isInteractive ? 
+			screenshot: this.isInteractive ? await this.getCurrentScreenshot() : "",
+			logs: this.isInteractive ?
 				"Connected to browser in remote debugging mode." :
 				"Browser launched successfully.",
 			currentUrl: this.page?.url(),
@@ -100,38 +109,65 @@ export class BrowserSession {
 	}
 
 	private async getCurrentScreenshot(): Promise<string | undefined> {
-		if (!this.page) return undefined
-
-		let options: ScreenshotOptions = {
-			encoding: "base64",
+		if (this.isInteractive) {
+			this.browser = await this.puppeteerConnect(this.browserPort)
+		  
+			if (this.browser) {
+				const pages = await this.browser.pages()
+				this.page = pages[0] || await this.browser.newPage()
+			} else {
+				this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: getCurrentScreenshot :: Failed to connect to browser for screenshot`)
+				throw new Error("Failed to connect to browser for screenshot")
+			}
 		}
 
+		if (!this.page) {
+			this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: getCurrentScreenshot :: Failed to take over a page to screenshot`)
+			throw new Error("Failed to get page for screenshot")
+		}
+
+		const screenshotType ="webp"
 		try {
 			let screenshotBase64 = await this.page.screenshot({
-				...options,
-				type: "webp",
+				encoding: "base64",
+				type: screenshotType,
 			})
-			return `data:image/webp;base64,${screenshotBase64}`
+			return `data:image/${screenshotType};base64,${screenshotBase64}`
 		} catch (err) {
 			try {
 				let screenshotBase64 = await this.page.screenshot({
-					...options,
+					encoding: "base64",
 					type: "png",
 				})
 				return `data:image/png;base64,${screenshotBase64}`
 			} catch (err) {
-				console.error("Failed to take screenshot:", err)
+				this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: getCurrentScreenshot :: Failed to take ${screenshotType} screenshot`)
+				console.error(`Failed to take ${screenshotType} screenshot:`, err)
 				return undefined
 			}
 		}
 	}
 
 	async doAction(action: (page: Page) => Promise<void>): Promise<BrowserActionResult> {
+		try {
+			if (this.isInteractive && !this.browser) {
+				this.browser = await this.puppeteerConnect(this.browserPort)
+				
+				if (this.browser) {
+				const pages = await this.browser.pages()
+				this.page = pages[0] || await this.browser.newPage()
+				}
+			}
+			// Ensure we have a browser and page
+			if (!this.browser || !this.page) {
+				throw new Error("Browser is not launched or connected. This may occur if the browser was automatically closed by a non-`browser_action` tool.")
+			}
 		
-		if (!this.page) {
-			throw new Error(
-				"Browser is not launched or connected. This may occur if the browser was automatically closed by a non-`browser_action` tool.",
-			)
+		}// For interactive mode and snapshot, try to connect first
+		catch(err) {
+			this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: doAction :: Browser action failed`)
+			console.error("Browser action failed:", err)
+			throw err
 		}
 
 		const logs: string[] = []
@@ -282,6 +318,28 @@ export class BrowserSession {
 				})
 			})
 			await delay(300)
+		})
+	}
+
+	async takeScreenshot(interactive: boolean = false, port?: string): Promise<BrowserActionResult> {
+		this.isInteractive = interactive
+		this.browserPort = port ?? this.browserPort
+		
+		// If no browser session exists or we're in interactive mode, try to connect
+		if ((!this.page || !this.browser) && this.isInteractive) {
+		  this.browser = await this.puppeteerConnect(this.browserPort)
+		  
+		  if (this.browser) {
+			const pages = await this.browser.pages()
+			this.page = pages[0] || await this.browser.newPage()
+		  } else {
+			this.providerRef.deref()?.outputChannel.appendLine(`BrowserSession.ts :: takeScreenshot :: Failed to connect to browser for screenshot`)
+			throw new Error("Failed to connect to browser for screenshot")
+		  }
+		}
+	
+		return this.doAction(async (page) => {
+		  // doAction will handle actually taking the screenshot
 		})
 	}
 }

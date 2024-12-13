@@ -108,7 +108,7 @@ export class Cline {
 		this.api = buildApiHandler(apiConfiguration)
 		this.terminalManager = new TerminalManager()
 		this.urlContentFetcher = new UrlContentFetcher(provider.context)
-		this.browserSession = new BrowserSession(provider.context)
+		this.browserSession = new BrowserSession(provider.context, provider)
 		this.diffViewProvider = new DiffViewProvider(cwd)
 		this.isInteractiveMode = isInteractiveMode ?? false
 		this.browserPort = browserPort ?? "7333"
@@ -1498,7 +1498,15 @@ export class Cline {
 
 						try {
 							if (block.partial) {
-								if (action === "launch") {
+								if (action === "snapshot") {
+									// For snapshot, we just show the streaming UI update
+									await this.say(
+									  "browser_action",
+									  JSON.stringify({
+										action: "snapshot"
+									  } satisfies ClineSayBrowserAction),
+									)
+								} else if (action === "launch") {
 									await this.ask(
 										"browser_action_launch",
 										removeClosingTag("url", url),
@@ -1519,25 +1527,32 @@ export class Cline {
 								break
 							} else {
 								let browserActionResult: BrowserActionResult
-								if (action === "launch") {
+								if (action === "snapshot") {
+									await this.say("browser_action",JSON.stringify({action: "snapshot"} satisfies ClineSayBrowserAction))
+									browserActionResult = await this.browserSession.takeScreenshot(this.isInteractiveMode, this.browserPort)
+								} else if (action === "launch") {
 									if (!url) {
-										this.consecutiveMistakeCount++
-										pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "url"))
-										await this.browserSession.closeBrowser()
-										break
-									}
-									
-									this.consecutiveMistakeCount = 0
-									const didApprove = await askApproval("browser_action_launch", url)
-									if (!didApprove) {
-										break
-									}
+										if (this.isInteractiveMode) {
+											browserActionResult = await this.browserSession.takeScreenshot()
+										} else {
+											this.consecutiveMistakeCount++
+											pushToolResult(await this.sayAndCreateMissingParamError("browser_action", "url"))
+											await this.browserSession.closeBrowser()
+											break
+										}
+									} else {
+										this.consecutiveMistakeCount = 0
+										const didApprove = await askApproval("browser_action_launch", url)
+										if (!didApprove) {
+											break
+										}
 
-									// NOTE: it's okay that we call this message since the partial inspect_site is finished streaming. The only scenario we have to avoid is sending messages WHILE a partial message exists at the end of the messages array. For example the api_req_finished message would interfere with the partial message, so we needed to remove that.
-									// await this.say("inspect_site_result", "") // no result, starts the loading spinner waiting for result
-									await this.say("browser_action_result", "") // starts loading spinner
-									await this.browserSession.launchBrowser(this.isInteractiveMode, this.browserPort)
-									browserActionResult = await this.browserSession.navigateToUrl(url)
+										// NOTE: it's okay that we call this message since the partial inspect_site is finished streaming. The only scenario we have to avoid is sending messages WHILE a partial message exists at the end of the messages array. For example the api_req_finished message would interfere with the partial message, so we needed to remove that.
+										// await this.say("inspect_site_result", "") // no result, starts the loading spinner waiting for result
+										await this.say("browser_action_result", "") // starts loading spinner
+										await this.browserSession.launchBrowser(this.isInteractiveMode, this.browserPort)
+										browserActionResult = await this.browserSession.navigateToUrl(url)
+									}
 								} else {
 									if (action === "click") {
 										if (!coordinate) {
@@ -1592,6 +1607,19 @@ export class Cline {
 									}
 								}
 								switch (action) {
+									case "snapshot": {
+										const { screenshot, ...snapshotResult } = browserActionResult
+										await this.say("browser_action_result", JSON.stringify(snapshotResult))
+										pushToolResult(
+											formatResponse.toolResult(
+												`The browser action has been executed. The console logs have been captured for your analysis.\n\nConsole logs:\n${
+													browserActionResult.logs || "(No new logs)"
+												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+												browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
+											),
+										)
+										break
+									}	
 									case "launch":
 									case "click":
 									case "type":
