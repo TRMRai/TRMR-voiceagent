@@ -21,61 +21,6 @@ Here's an example of Roo-Cline autonomously creating a snake game with "Always a
 
 https://github.com/user-attachments/assets/c2bb31dc-e9b2-4d73-885d-17f1471a4987
 
-## Contributing
-To contribute to the project, start by exploring [open issues](https://github.com/RooVetGit/Roo-Cline/issues) or checking our [feature request board](https://github.com/cline/cline/discussions/categories/feature-requests?discussions_q=is%3Aopen+category%3A%22Feature+Requests%22+sort%3Atop). We'd also love to have you join our [Discord](https://discord.gg/cline) to share ideas and connect with other contributors.
-
-<details>
-<summary>Local Setup</summary>
-
-1. Install dependencies:
-   ```bash
-   npm run install:all
-   ```
-
-2. Build the VSIX file:
-   ```bash
-   npm run build
-   ```
-3. The new VSIX file will be created in the `bin/` directory
-4. Install the extension from the VSIX file as described below:
-
-   - **Option 1:** Drag and drop the `.vsix` file into your VSCode-compatible editor's Extensions panel (Cmd/Ctrl+Shift+X).
-
-   - **Option 2:** Install the plugin using the CLI, make sure you have your VSCode-compatible CLI installed and in your `PATH` variable. Cursor example: `export PATH="$PATH:/Applications/Cursor.app/Contents/MacOS"`
-
-    ```bash
-    # Ex: cursor --install-extension bin/roo-cline-2.0.1.vsix
-    # Ex: code --install-extension bin/roo-cline-2.0.1.vsix
-    ```
-
-5. Launch by pressing `F5` (or `Run`->`Start Debugging`) to open a new VSCode window with the extension loaded. (You may need to install the [esbuild problem matchers extension](https://marketplace.visualstudio.com/items?itemName=connor4312.esbuild-problem-matchers) if you run into issues building the project.)
-
-</details>
-
-<details>
-<summary>Publishing</summary>
-We use [changesets](https://github.com/changesets/changesets) for versioning and publishing this package. To make changes:
-
-1. Create a PR with your changes
-2. Create a new changeset by running `npm run changeset`
-   - Select the appropriate kind of change - `patch` for bug fixes, `minor` for new features, or `major` for breaking changes
-   - Write a clear description of your changes that will be included in the changelog
-3. Get the PR approved and pass all checks
-4. Merge it
-
-Once your merge is successful:
-- The release workflow will automatically create a new "Changeset version bump" PR
-- This PR will:
-  - Update the version based on your changeset
-  - Update the `CHANGELOG.md` file
-  - Create a git tag
-- The PR will be automatically approved and merged
-- A new version and git release will be published
-
-</details>
-
-## Stay Updated!
-Subscribe to our [Github releases](https://github.com/RooVetGit/Roo-Cline/releases) to keep up with the latest updates! You can also view our [CHANGELOG.md](Roo-Cline/CHANGELOG.md) for more details.
 
 ---
 
@@ -114,10 +59,10 @@ Thanks to [Claude 3.5 Sonnet's agentic coding capabilities](https://www-cdn.ant
     - Create and edit files + monitor linter/compiler errors along the way, letting him proactively fix issues like missing imports and syntax errors on his own.
     - Execute commands directly in your terminal and monitor their output as he works, letting him e.g., react to dev server issues after editing a file.
     - For web development tasks, Cline can launch the site in a headless browser, click, type, scroll, and capture screenshots + console logs, allowing him to fix runtime errors and visual bugs.
-4. When a task is completed, Cline will present the result to you with a terminal command like `open -a "Google Chrome" index.html`, which you run with a click of a button.
+4. When a task is completed, Cline will present the result to you with a terminal command like `open -a "Google Chrome" index.html`, which you run with a click of a button.
 
 > [!TIP]
-> Use the `CMD/CTRL + Shift + P` shortcut to open the command palette and type "Cline: Open In New Tab" to open the extension as a tab in your editor. This lets you use Cline side-by-side with your file explorer, and see how he changes your workspace more clearly.
+> Use the `CMD/CTRL + Shift + P` shortcut to open the command palette and type "Cline: Open In New Tab" to open the extension as a tab in your editor. This lets you use Cline side-by-side with your file explorer, and see how he changes your workspace more clearly.
 
 ---
 
