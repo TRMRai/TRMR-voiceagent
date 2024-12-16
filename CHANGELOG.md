@@ -1,5 +1,33 @@
 # Roo Cline Changelog
 
+## [2.2.12]
+
+-   Better support for pure deletion and insertion diffs
+
+## [2.2.11]
+
+-   Added settings checkbox for verbose diff debugging
+
+## [2.2.6 - 2.2.10]
+
+-   More fixes to search/replace diffs
+
+## [2.2.5]
+
+-   Allow MCP servers to be enabled/disabled
+
+## [2.2.4]
+
+-   Tweak the prompt to encourage diff edits when they're enabled
+
+## [2.2.3]
+
+-   Clean up the settings screen
+
+## [2.2.2]
+
+-   Add checkboxes to auto-approve MCP tools
+
 ## [2.2.1]
 
 -   Fix another diff editing indentation bug
@@ -72,9 +100,9 @@
 
 ## [2.2.0]
 
-- Add support for Model Context Protocol (MCP), enabling Cline to use custom tools like web-search tool or GitHub tool
-- Add MCP server management tab accessible via the server icon in the menu bar
-- Add ability for Cline to dynamically create new MCP servers based on user requests (e.g., "add a tool that gets the latest npm docs")
+-   Add support for Model Context Protocol (MCP), enabling Cline to use custom tools like web-search tool or GitHub tool
+-   Add MCP server management tab accessible via the server icon in the menu bar
+-   Add ability for Cline to dynamically create new MCP servers based on user requests (e.g., "add a tool that gets the latest npm docs")
 
 ## [2.1.6]
 

@@ -99,6 +99,7 @@ export class Cline {
 		apiConfiguration: ApiConfiguration,
 		customInstructions?: string,
 		diffEnabled?: boolean,
+		debugDiffEnabled?: boolean,
 		isInteractiveMode?: boolean,
 		browserPort?: string,
 		task?: string,
@@ -115,7 +116,7 @@ export class Cline {
 		this.browserPort = browserPort ?? "7333"
 		this.customInstructions = customInstructions
 		if (diffEnabled && this.api.getModel().id) {
-			this.diffStrategy = getDiffStrategy(this.api.getModel().id)
+			this.diffStrategy = getDiffStrategy(this.api.getModel().id, debugDiffEnabled)
 		}
 		if (historyItem) {
 			this.taskId = historyItem.id
@@ -1263,20 +1264,30 @@ export class Cline {
 								const originalContent = await fs.readFile(absolutePath, "utf-8")
 
 								// Apply the diff to the original content
-								let newContent = this.diffStrategy?.applyDiff(originalContent, diffContent) ?? false
-								if (newContent === false) {
+								const diffResult = this.diffStrategy?.applyDiff(
+									originalContent, 
+									diffContent, 
+									parseInt(block.params.start_line ?? ''), 
+									parseInt(block.params.end_line ?? '')
+								) ?? {
+									success: false,
+									error: "No diff strategy available"
+								}
+								if (!diffResult.success) {
 									this.consecutiveMistakeCount++
-									await this.say("error", `Unable to apply diff to file - contents are out of sync: ${absolutePath}`)
-									pushToolResult(`Error applying diff to file: ${absolutePath} - contents are out of sync. Try re-reading the relevant lines of the file and applying the diff again.`)
+									const errorDetails = diffResult.details ? `\n\nDetails:\n${JSON.stringify(diffResult.details, null, 2)}` : ''
+									await this.say("error", `Unable to apply diff to file: ${absolutePath}\n${diffResult.error}${errorDetails}`)
+									pushToolResult(`Error applying diff to file: ${absolutePath}\n${diffResult.error}${errorDetails}`)
 									break
 								}
+								const newContent = diffResult.content
 
 								this.consecutiveMistakeCount = 0
 
 								// Show diff view before asking for approval
 								this.diffViewProvider.editType = "modify"
 								await this.diffViewProvider.open(relPath);
-								await this.diffViewProvider.update(newContent, true);
+								await this.diffViewProvider.update(diffResult.content, true);
 								await this.diffViewProvider.scrollToFirstDiff();
 
 								const completeMessage = JSON.stringify({

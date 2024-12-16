@@ -1,14 +1,19 @@
 # Roo-Cline
-A fork of Cline, an autonomous coding agent, with some added experimental configuration and automation features.
-- Auto-approval capabilities for commands, write, and browser operations
-- Support for .clinerules per-project custom instructions
-- Ability to run side-by-side with Cline
-- Unit test coverage (written almost entirely by Roo Cline!)
-- Support for playing sound effects
-- Support for OpenRouter compression
-- Support for copying prompts from the history screen
-- Support for editing through diffs / handling truncated full-file edits
-- Support for newer Gemini models (gemini-exp-1206 and gemini-2.0-flash-exp)
+
+A fork of Cline, an autonomous coding agent, tweaked for more speed and flexibility. It’s been mainly writing itself recently, with a light touch of human guidance here and there.
+
+## Features
+
+- Automatically approve commands, browsing, file writing, and MCP tools
+- Faster, more targeted edits via diffs (even on big files)
+- Detects and fixes missing code chunks
+- `.clinerules` for project-specific instructions
+- Drag and drop images into chats
+- Sound effects for feedback
+- Quick prompt copying from history
+- OpenRouter compression support
+- Support for newer Gemini models (gemini-exp-1206, gemini-2.0-flash-exp)
+- Runs alongside the original Cline
 
 ## Disclaimer
 
@@ -103,7 +108,7 @@ Subscribe to our [Github releases](https://github.com/RooVetGit/Roo-Cline/releas
 
 Meet Cline, an AI assistant that can use your **CLI** a**N**d **E**ditor.
 
-Thanks to [Claude 3.5 Sonnet's agentic coding capabilities](https://www-cdn.anthropic.com/fed9cc193a14b84131812372d8d5857f8f304c52/Model_Card_Claude_3_Addendum.pdf), Cline can handle complex software development tasks step-by-step. With tools that let him create & edit files, explore large projects, use the browser, and execute terminal commands (after you grant permission), he can assist you in ways that go beyond code completion or tech support. Cline can even use the Model Context Protocol (MCP) to create new tools and extend his own capabilities. While autonomous AI scripts traditionally run in sandboxed environments, this extension provides a human-in-the-loop GUI to approve every file change and terminal command, providing a safe and accessible way to explore the potential of agentic AI.
+Thanks to [Claude 3.5 Sonnet's agentic coding capabilities](https://www-cdn.anthropic.com/fed9cc193a14b84131812372d8d5857f8f304c52/Model_Card_Claude_3_Addendum.pdf), Cline can handle complex software development tasks step-by-step. With tools that let him create & edit files, explore large projects, use the browser, and execute terminal commands (after you grant permission), he can assist you in ways that go beyond code completion or tech support. Cline can even use the Model Context Protocol (MCP) to create new tools and extend his own capabilities. While autonomous AI scripts traditionally run in sandboxed environments, this extension provides a human-in-the-loop GUI to approve every file change and terminal command, providing a safe and accessible way to explore the potential of agentic AI.
 
 1. Enter your task and add images to convert mockups into functional apps or fix bugs with screenshots.
 2. Cline starts by analyzing your file structure & source code ASTs, running regex searches, and reading relevant files to get up to speed in existing projects. By carefully managing what information is added to context, Cline can provide valuable assistance even for large, complex projects without overwhelming the context window.
@@ -184,13 +189,13 @@ Thanks to the [Model Context Protocol](https://github.com/modelcontextprotocol),
 
 ### Add Context
 
-**`@url`:** Paste in a URL for the extension to fetch and convert to markdown, useful when you want to give Cline the latest docs
+**`@url`:** Paste in a URL for the extension to fetch and convert to markdown, useful when you want to give Cline the latest docs
 
-**`@problems`:** Add workspace errors and warnings ('Problems' panel) for Cline to fix
+**`@problems`:** Add workspace errors and warnings ('Problems' panel) for Cline to fix
 
-**`@file`:** Adds a file's contents so you don't have to waste API requests approving read file (+ type to search files)
+**`@file`:** Adds a file's contents so you don't have to waste API requests approving read file (+ type to search files)
 
-**`@folder`:** Adds folder's files all at once to speed up your workflow even more
+**`@folder`:** Adds folder's files all at once to speed up your workflow even more
 
 ## Contributing
 

@@ -29,20 +29,31 @@ export interface WebviewMessage {
 		| "cancelTask"
 		| "refreshOpenRouterModels"
 		| "alwaysAllowBrowser"
+		| "alwaysAllowMcp"
 		| "playSound"
 		| "soundEnabled"
+		| "soundVolume"
 		| "diffEnabled"
 		| "isInteractiveMode"
     	| "browserPort"
+		| "debugDiffEnabled"
 		| "openMcpSettings"
 		| "restartMcpServer"
+		| "toggleToolAlwaysAllow"
+		| "toggleMcpServer"
 	text?: string
+	disabled?: boolean
 	askResponse?: ClineAskResponse
 	apiConfiguration?: ApiConfiguration
 	images?: string[]
 	bool?: boolean
+	value?: number
 	commands?: string[]
 	audioType?: AudioType
+	// For toggleToolAutoApprove
+	serverName?: string
+	toolName?: string
+	alwaysAllow?: boolean
 }
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"

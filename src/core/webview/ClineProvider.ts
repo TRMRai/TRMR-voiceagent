@@ -22,7 +22,7 @@ import { Cline } from "../Cline"
 import { openMention } from "../mentions"
 import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
-import { playSound, setSoundEnabled } from "../../utils/sound"
+import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -66,9 +66,12 @@ type GlobalStateKey =
 	| "openRouterUseMiddleOutTransform"
 	| "allowedCommands"
 	| "soundEnabled"
+	| "soundVolume"
 	| "diffEnabled"
 	| "isInteractiveMode"
 	| "browserPort"
+	| "debugDiffEnabled"
+	| "alwaysAllowMcp"
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -136,6 +139,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	): void | Thenable<void> {
 		this.outputChannel.appendLine("Resolving webview view")
 		this.view = webviewView
+
+		// Initialize sound enabled state
+		this.getState().then(({ soundEnabled }) => {
+			setSoundEnabled(soundEnabled ?? false)
+		})
 
 		webviewView.webview.options = {
 			// Allow scripts in the webview
@@ -214,6 +222,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			diffEnabled,
 			isInteractiveMode,
 			browserPort,
+			debugDiffEnabled,
 		} = await this.getState()
 
 		this.cline = new Cline(
@@ -221,6 +230,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			apiConfiguration, 
 			customInstructions, 
 			diffEnabled,
+			debugDiffEnabled,
 			isInteractiveMode,
 			browserPort,
 			task, 
@@ -234,8 +244,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			apiConfiguration, 
 			customInstructions, 
 			diffEnabled,
+			debugDiffEnabled,
 			isInteractiveMode,
-			browserPort,
+			browserPort
 		} = await this.getState()
 		
 		this.cline = new Cline(
@@ -243,6 +254,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			apiConfiguration,
 			customInstructions,
 			diffEnabled,
+			debugDiffEnabled,
 			isInteractiveMode,
 			browserPort,
 			undefined,
@@ -466,6 +478,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						await this.updateGlobalState("alwaysAllowBrowser", message.bool ?? undefined)
 						await this.postStateToWebview()
 						break
+					case "alwaysAllowMcp":
+						await this.updateGlobalState("alwaysAllowMcp", message.bool)
+						await this.postStateToWebview()
+						break
 					case "askResponse":
 						this.cline?.handleWebviewAskResponse(message.askResponse!, message.text, message.images)
 						break
@@ -560,6 +576,29 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						}
 						break
 					}
+					case "toggleToolAlwaysAllow": {
+						try {
+							await this.mcpHub?.toggleToolAlwaysAllow(
+								message.serverName!,
+								message.toolName!,
+								message.alwaysAllow!
+							)
+						} catch (error) {
+							console.error(`Failed to toggle auto-approve for tool ${message.toolName}:`, error)
+						}
+						break
+					}
+					case "toggleMcpServer": {
+						try {
+							await this.mcpHub?.toggleServerDisabled(
+								message.serverName!,
+								message.disabled!
+							)
+						} catch (error) {
+							console.error(`Failed to toggle MCP server ${message.serverName}:`, error)
+						}
+						break
+					}
 					// Add more switch case statements here as more webview message commands
 					// are created within the webview context (i.e. inside media/main.js)
 					case "playSound":
@@ -574,6 +613,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						setSoundEnabled(soundEnabled)  // Add this line to update the sound utility
 						await this.postStateToWebview()
 						break
+					case "soundVolume":
+						const soundVolume = message.value ?? 0.5
+						await this.updateGlobalState("soundVolume", soundVolume)
+						setSoundVolume(soundVolume)
+						await this.postStateToWebview()
+						break
 					case "diffEnabled":
 						const diffEnabled = message.bool ?? true
 						await this.updateGlobalState("diffEnabled", diffEnabled)
@@ -586,6 +631,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					case "browserPort":
 						await this.updateGlobalState("browserPort", message.text ?? "7333")
 						await this.postStateToWebview() 
+						break
+					case "debugDiffEnabled":
+						const debugDiffEnabled = message.bool ?? false
+						await this.updateGlobalState("debugDiffEnabled", debugDiffEnabled)
+						await this.postStateToWebview()
 						break
 				}
 			},
@@ -910,11 +960,14 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			alwaysAllowWrite,
 			alwaysAllowExecute,
 			alwaysAllowBrowser,
+			alwaysAllowMcp,
 			soundEnabled,
 			diffEnabled,
+			debugDiffEnabled,
 			taskHistory,
 			isInteractiveMode,
 			browserPort,
+			soundVolume,
 		} = await this.getState()
 		
 		const allowedCommands = vscode.workspace
@@ -929,6 +982,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			alwaysAllowWrite: alwaysAllowWrite ?? false,
 			alwaysAllowExecute: alwaysAllowExecute ?? false,
 			alwaysAllowBrowser: alwaysAllowBrowser ?? false,
+			alwaysAllowMcp: alwaysAllowMcp ?? false,
 			uriScheme: vscode.env.uriScheme,
 			clineMessages: this.cline?.clineMessages || [],
 			taskHistory: (taskHistory || [])
@@ -936,10 +990,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				.sort((a, b) => b.ts - a.ts),
 			soundEnabled: soundEnabled ?? false,
 			diffEnabled: diffEnabled ?? false,
+			debugDiffEnabled: debugDiffEnabled ?? false,
 			shouldShowAnnouncement: lastShownAnnouncementId !== this.latestAnnouncementId,
 			allowedCommands,
 			isInteractiveMode: isInteractiveMode ?? false,
 			browserPort: browserPort ?? "7333",
+			soundVolume: soundVolume ?? 0.5,
 		}
 	}
 
@@ -1027,12 +1083,15 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			alwaysAllowWrite,
 			alwaysAllowExecute,
 			alwaysAllowBrowser,
+			alwaysAllowMcp,
 			taskHistory,
 			allowedCommands,
 			soundEnabled,
 			diffEnabled,
 			isInteractiveMode,
 			browserPort,
+			debugDiffEnabled,
+			soundVolume,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -1065,12 +1124,15 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("alwaysAllowWrite") as Promise<boolean | undefined>,
 			this.getGlobalState("alwaysAllowExecute") as Promise<boolean | undefined>,
 			this.getGlobalState("alwaysAllowBrowser") as Promise<boolean | undefined>,
+			this.getGlobalState("alwaysAllowMcp") as Promise<boolean | undefined>,
 			this.getGlobalState("taskHistory") as Promise<HistoryItem[] | undefined>,
 			this.getGlobalState("allowedCommands") as Promise<string[] | undefined>,
 			this.getGlobalState("soundEnabled") as Promise<boolean | undefined>,
 			this.getGlobalState("diffEnabled") as Promise<boolean | undefined>,
 			this.getGlobalState("isInteractiveMode") as Promise<boolean | undefined>,
-			this.getGlobalState("browserPort") as Promise<string | undefined>
+			this.getGlobalState("browserPort") as Promise<string | undefined>,
+			this.getGlobalState("debugDiffEnabled") as Promise<boolean | undefined>,
+			this.getGlobalState("soundVolume") as Promise<number | undefined>,
 		])
 
 		let apiProvider: ApiProvider
@@ -1121,12 +1183,15 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			alwaysAllowWrite: alwaysAllowWrite ?? false,
 			alwaysAllowExecute: alwaysAllowExecute ?? false,
 			alwaysAllowBrowser: alwaysAllowBrowser ?? false,
+			alwaysAllowMcp: alwaysAllowMcp ?? false,
 			taskHistory,
 			allowedCommands,
-			soundEnabled,
-			diffEnabled,
 			isInteractiveMode: isInteractiveMode ?? false,
-			browserPort: browserPort ?? "7333"
+			browserPort: browserPort ?? "7333",
+			soundEnabled: soundEnabled ?? false,
+			diffEnabled: diffEnabled ?? false,
+			debugDiffEnabled: debugDiffEnabled ?? false,
+			soundVolume,
 		}
 	}
 

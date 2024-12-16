@@ -17,7 +17,7 @@ type McpViewProps = {
 }
 
 const McpView = ({ onDone }: McpViewProps) => {
-	const { mcpServers: servers } = useExtensionState()
+	const { mcpServers: servers, alwaysAllowMcp } = useExtensionState()
 	// const [servers, setServers] = useState<McpServer[]>([
 	// 	// Add some mock servers for testing
 	// 	{
@@ -126,7 +126,7 @@ const McpView = ({ onDone }: McpViewProps) => {
 				{servers.length > 0 && (
 					<div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
 						{servers.map((server) => (
-							<ServerRow key={server.name} server={server} />
+							<ServerRow key={server.name} server={server} alwaysAllowMcp={alwaysAllowMcp} />
 						))}
 					</div>
 				)}
@@ -152,7 +152,7 @@ const McpView = ({ onDone }: McpViewProps) => {
 }
 
 // Server Row Component
-const ServerRow = ({ server }: { server: McpServer }) => {
+const ServerRow = ({ server, alwaysAllowMcp }: { server: McpServer, alwaysAllowMcp?: boolean }) => {
 	const [isExpanded, setIsExpanded] = useState(false)
 
 	const getStatusColor = () => {
@@ -189,6 +189,7 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 					background: "var(--vscode-textCodeBlock-background)",
 					cursor: server.error ? "default" : "pointer",
 					borderRadius: isExpanded || server.error ? "4px 4px 0 0" : "4px",
+					opacity: server.disabled ? 0.6 : 1,
 				}}
 				onClick={handleRowClick}>
 				{!server.error && (
@@ -198,6 +199,55 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 					/>
 				)}
 				<span style={{ flex: 1 }}>{server.name}</span>
+				<div
+					style={{ display: "flex", alignItems: "center", marginRight: "8px" }}
+					onClick={(e) => e.stopPropagation()}>
+					<div
+						role="switch"
+						aria-checked={!server.disabled}
+						tabIndex={0}
+						style={{
+							width: "20px",
+							height: "10px",
+							backgroundColor: server.disabled ?
+								"var(--vscode-titleBar-inactiveForeground)" :
+								"var(--vscode-button-background)",
+							borderRadius: "5px",
+							position: "relative",
+							cursor: "pointer",
+							transition: "background-color 0.2s",
+							opacity: server.disabled ? 0.4 : 0.8,
+						}}
+						onClick={() => {
+							vscode.postMessage({
+								type: "toggleMcpServer",
+								serverName: server.name,
+								disabled: !server.disabled
+							});
+						}}
+						onKeyDown={(e) => {
+							if (e.key === "Enter" || e.key === " ") {
+								e.preventDefault();
+								vscode.postMessage({
+									type: "toggleMcpServer",
+									serverName: server.name,
+									disabled: !server.disabled
+								});
+							}
+						}}
+					>
+						<div style={{
+							width: "6px",
+							height: "6px",
+							backgroundColor: "var(--vscode-titleBar-activeForeground)",
+							borderRadius: "50%",
+							position: "absolute",
+							top: "2px",
+							left: server.disabled ? "2px" : "12px",
+							transition: "left 0.2s",
+						}} />
+					</div>
+				</div>
 				<div
 					style={{
 						width: "8px",
@@ -256,7 +306,12 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 									<div
 										style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
 										{server.tools.map((tool) => (
-											<McpToolRow key={tool.name} tool={tool} />
+											<McpToolRow
+												key={tool.name}
+												tool={tool}
+												serverName={server.name}
+												alwaysAllowMcp={alwaysAllowMcp}
+											/>
 										))}
 									</div>
 								) : (

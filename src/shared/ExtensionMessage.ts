@@ -47,12 +47,15 @@ export interface ExtensionState {
 	alwaysAllowWrite?: boolean
 	alwaysAllowExecute?: boolean
 	alwaysAllowBrowser?: boolean
+	alwaysAllowMcp?: boolean
 	uriScheme?: string
 	allowedCommands?: string[]
 	soundEnabled?: boolean
+	soundVolume?: number
 	diffEnabled?: boolean
 	isInteractiveMode?: boolean
 	browserPort?: string
+	debugDiffEnabled?: boolean
 }
 
 export interface ClineMessage {

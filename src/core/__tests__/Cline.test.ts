@@ -279,6 +279,7 @@ describe('Cline', () => {
                 mockApiConfig,
                 'custom instructions',
                 false,
+                false,
                 true, // isInteractiveMode
                 '7333', // browserPort
                 'test task'

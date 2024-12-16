@@ -25,12 +25,15 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setAlwaysAllowWrite: (value: boolean) => void
 	setAlwaysAllowExecute: (value: boolean) => void
 	setAlwaysAllowBrowser: (value: boolean) => void
+	setAlwaysAllowMcp: (value: boolean) => void
 	setShowAnnouncement: (value: boolean) => void
 	setAllowedCommands: (value: string[]) => void
 	setSoundEnabled: (value: boolean) => void
+	setSoundVolume: (value: number) => void
 	setDiffEnabled: (value: boolean) => void
 	setInteractiveBrowserMode: (value: boolean) => void
 	setBrowserPort: (value: string) => void
+	setDebugDiffEnabled: (value: boolean) => void
 }
 
 const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -43,9 +46,11 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		shouldShowAnnouncement: false,
 		allowedCommands: [],
 		soundEnabled: false,
+		soundVolume: 0.5,
 		diffEnabled: false,
 		isInteractiveMode: false,
 		browserPort: "7333",
+		debugDiffEnabled: false,
 	})
 	const [didHydrateState, setDidHydrateState] = useState(false)
 	const [showWelcome, setShowWelcome] = useState(false)
@@ -132,18 +137,28 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		openRouterModels,
 		mcpServers,
 		filePaths,
-		setApiConfiguration: (value) => setState((prevState) => ({ ...prevState, apiConfiguration: value })),
+		soundVolume: state.soundVolume,
+		setApiConfiguration: (value) => setState((prevState) => ({
+			...prevState,
+			apiConfiguration: value
+		})),
 		setCustomInstructions: (value) => setState((prevState) => ({ ...prevState, customInstructions: value })),
 		setAlwaysAllowReadOnly: (value) => setState((prevState) => ({ ...prevState, alwaysAllowReadOnly: value })),
 		setAlwaysAllowWrite: (value) => setState((prevState) => ({ ...prevState, alwaysAllowWrite: value })),
 		setAlwaysAllowExecute: (value) => setState((prevState) => ({ ...prevState, alwaysAllowExecute: value })),
 		setAlwaysAllowBrowser: (value) => setState((prevState) => ({ ...prevState, alwaysAllowBrowser: value })),
+		setAlwaysAllowMcp: (value) => setState((prevState) => ({ ...prevState, alwaysAllowMcp: value })),
 		setShowAnnouncement: (value) => setState((prevState) => ({ ...prevState, shouldShowAnnouncement: value })),
 		setAllowedCommands: (value) => setState((prevState) => ({ ...prevState, allowedCommands: value })),
 		setSoundEnabled: (value) => setState((prevState) => ({ ...prevState, soundEnabled: value })),
+		setSoundVolume: (value) => setState((prevState) => ({ ...prevState, soundVolume: value })),
 		setDiffEnabled: (value) => setState((prevState) => ({ ...prevState, diffEnabled: value })),
 		setInteractiveBrowserMode: (value) => setState((prevState) => ({ ...prevState, isInteractiveMode: value })),
 		setBrowserPort: (value) => setState((prevState) => ({ ...prevState, browserPort: value })),
+		setDebugDiffEnabled: (value) => setState((prevState) => ({
+			...prevState,
+			debugDiffEnabled: value
+		})),
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>
