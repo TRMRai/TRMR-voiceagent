@@ -1,5 +1,9 @@
 # Roo Cline Changelog
 
+## [2.2.16]
+
+-   Fix bug where completion sound played when opening completed task
+
 ## [2.2.14 - 2.2.15]
 
 -   Make diff editing more robust to transient errors / fix bugs
