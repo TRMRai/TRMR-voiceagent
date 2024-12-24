@@ -1,6 +1,6 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import { AnthropicVertex } from "@anthropic-ai/vertex-sdk"
-import { ApiHandler } from "../"
+import { ApiHandler, SingleCompletionHandler } from "../"
 import { ApiHandlerOptions, ModelInfo, vertexDefaultModelId, VertexModelId, vertexModels } from "../../shared/api"
 import { ApiStream } from "../transform/stream"
 
@@ -82,5 +82,28 @@ export class VertexHandler implements ApiHandler {
 			return { id, info: vertexModels[id] }
 		}
 		return { id: vertexDefaultModelId, info: vertexModels[vertexDefaultModelId] }
+	}
+
+	async completePrompt(prompt: string): Promise<string> {
+		try {
+			const response = await this.client.messages.create({
+				model: this.getModel().id,
+				max_tokens: this.getModel().info.maxTokens || 8192,
+				temperature: 0,
+				system: "",
+				messages: [{ role: "user", content: prompt }],
+				stream: false
+			})
+
+			if (response.content[0].type === 'text') {
+				return response.content[0].text
+			}
+			throw new Error('Unexpected response type from Vertex API')
+		} catch (error) {
+			if (error instanceof Error) {
+				throw new Error(`Vertex completion error: ${error.message}`)
+			}
+			throw new Error('An unknown error occurred during Vertex completion')
+		}
 	}
 }

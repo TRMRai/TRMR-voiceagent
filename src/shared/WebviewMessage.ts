@@ -42,6 +42,9 @@ export interface WebviewMessage {
 		| "fuzzyMatchThreshold"
 		| "preferredLanguage"
 		| "writeDelayMs"
+		| "enhancePrompt"
+		| "enhancedPrompt"
+		| "draggedImages"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse
@@ -51,10 +54,10 @@ export interface WebviewMessage {
 	value?: number
 	commands?: string[]
 	audioType?: AudioType
-	// For toggleToolAutoApprove
 	serverName?: string
 	toolName?: string
 	alwaysAllow?: boolean
+	dataUrls?: string[]
 }
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"

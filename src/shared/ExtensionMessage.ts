@@ -18,6 +18,7 @@ export interface ExtensionMessage {
 		| "partialMessage"
 		| "openRouterModels"
 		| "mcpServers"
+		| "enhancedPrompt"
 	text?: string
 	action?:
 		| "chatButtonClicked"

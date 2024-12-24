@@ -1,6 +1,6 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
-import { ApiHandler } from "../"
+import { ApiHandler, SingleCompletionHandler } from "../"
 import {
 	ApiHandlerOptions,
 	ModelInfo,
@@ -81,5 +81,35 @@ export class OpenAiNativeHandler implements ApiHandler {
 			return { id, info: openAiNativeModels[id] }
 		}
 		return { id: openAiNativeDefaultModelId, info: openAiNativeModels[openAiNativeDefaultModelId] }
+	}
+
+	async completePrompt(prompt: string): Promise<string> {
+		try {
+			switch (this.getModel().id) {
+				case "o1-preview":
+				case "o1-mini": {
+					// o1 doesn't support temperature
+					const response = await this.client.chat.completions.create({
+						model: this.getModel().id,
+						messages: [{ role: "user", content: prompt }]
+					})
+					return response.choices[0]?.message.content || ""
+				}
+				default: {
+					const response = await this.client.chat.completions.create({
+						model: this.getModel().id,
+						messages: [{ role: "user", content: prompt }],
+						temperature: 0,
+						stream: false
+					})
+					return response.choices[0]?.message?.content || ""
+				}
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				throw new Error(`OpenAI Native completion error: ${error.message}`)
+			}
+			throw new Error('An unknown error occurred during OpenAI Native completion')
+		}
 	}
 }

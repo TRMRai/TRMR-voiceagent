@@ -23,6 +23,7 @@ import { openMention } from "../mentions"
 import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
 import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
+import { enhancePrompt } from "../../utils/enhance-prompt"
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -631,6 +632,21 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					case "writeDelayMs":
 						await this.updateGlobalState("writeDelayMs", message.value)
 						await this.postStateToWebview()
+						break
+					case "enhancePrompt":
+						if (message.text) {
+							try {
+								const { apiConfiguration } = await this.getState()
+								const enhancedPrompt = await enhancePrompt(apiConfiguration, message.text)
+								await this.postMessageToWebview({
+									type: "enhancedPrompt",
+									text: enhancedPrompt
+								})
+							} catch (error) {
+								console.error("Error enhancing prompt:", error)
+								vscode.window.showErrorMessage("Failed to enhance prompt")
+							}
+						}
 						break
 				}
 			},

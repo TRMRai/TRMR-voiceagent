@@ -8,7 +8,7 @@ import pWaitFor from "p-wait-for"
 import * as path from "path"
 import { serializeError } from "serialize-error"
 import * as vscode from "vscode"
-import { ApiHandler, buildApiHandler } from "../api"
+import { ApiHandler, SingleCompletionHandler, buildApiHandler } from "../api"
 import { ApiStream } from "../api/transform/stream"
 import { DiffViewProvider } from "../integrations/editor/DiffViewProvider"
 import { findToolName, formatContentBlockToMarkdown } from "../integrations/misc/export-markdown"
@@ -124,6 +124,15 @@ export class Cline {
 		} else {
 			throw new Error("Either historyItem or task/images must be provided")
 		}
+	}
+
+	async enhancePrompt(promptText: string): Promise<string> {
+		if (!promptText) {
+			throw new Error("No prompt text provided")
+		}
+
+		const prompt = `Generate an enhanced version of this prompt (reply with only the enhanced prompt, no bullet points): ${promptText}`
+		return this.api.completePrompt(prompt)
 	}
 
 	// Storing task to disk for history

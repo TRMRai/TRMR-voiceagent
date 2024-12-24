@@ -6,7 +6,7 @@ import {
 	ModelInfo,
 	openAiModelInfoSaneDefaults,
 } from "../../shared/api"
-import { ApiHandler } from "../index"
+import { ApiHandler, SingleCompletionHandler } from "../index"
 import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream } from "../transform/stream"
 
@@ -72,6 +72,25 @@ export class OpenAiHandler implements ApiHandler {
 		return {
 			id: this.options.openAiModelId ?? "",
 			info: openAiModelInfoSaneDefaults,
+		}
+	}
+
+	async completePrompt(prompt: string): Promise<string> {
+		try {
+			const requestOptions: OpenAI.Chat.ChatCompletionCreateParams = {
+				model: this.options.openAiModelId ?? "",
+				messages: [{ role: "user", content: prompt }],
+				temperature: 0,
+				stream: false
+			}
+
+			const response = await this.client.chat.completions.create(requestOptions)
+			return response.choices[0]?.message?.content || ""
+		} catch (error) {
+			if (error instanceof Error) {
+				throw new Error(`OpenAI completion error: ${error.message}`)
+			}
+			throw new Error('An unknown error occurred during OpenAI completion')
 		}
 	}
 }
