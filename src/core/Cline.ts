@@ -50,6 +50,7 @@ import { ClineProvider, GlobalFileNames } from "./webview/ClineProvider"
 import { detectCodeOmission } from "../integrations/editor/detect-omission"
 import { BrowserSession } from "../services/browser/BrowserSession"
 import { OpenRouterHandler } from "../api/providers/openrouter"
+import { CHARS_PER_TOKEN, ContextWindow } from "./ContextWindow"
 
 const cwd =
 	vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) ?? path.join(os.homedir(), "Desktop") // may or may not exist but fs checking existence would immediately ask for permission which would be bad UX, need to come up with a better solution
@@ -83,6 +84,7 @@ export class Cline {
 	didFinishAborting = false
 	abandoned = false
 	private diffViewProvider: DiffViewProvider
+	private contextWindow?: ContextWindow
 
 	// streaming
 	private currentStreamingContentIndex = 0
@@ -789,17 +791,15 @@ export class Cline {
 		const { browserViewportSize, preferredLanguage } = await this.providerRef.deref()?.getState() ?? {}
 		const systemPrompt = await SYSTEM_PROMPT(cwd, this.api.getModel().info.supportsComputerUse ?? false, mcpHub, this.diffStrategy, browserViewportSize) + await addCustomInstructions(this.customInstructions ?? '', cwd, preferredLanguage)
 
+		// Initialize context window with system prompt size
+		const systemPromptSize = Math.ceil(systemPrompt.length / CHARS_PER_TOKEN)
+		this.contextWindow = new ContextWindow(this.api.getModel().info, systemPromptSize)
+
 		// If the previous API request's total token usage is close to the context window, truncate the conversation history to free up space for the new request
 		if (previousApiReqIndex >= 0) {
 			const previousRequest = this.clineMessages[previousApiReqIndex]
 			if (previousRequest && previousRequest.text) {
-				const { tokensIn, tokensOut, cacheWrites, cacheReads }: ClineApiReqInfo = JSON.parse(
-					previousRequest.text,
-				)
-				const totalTokens = (tokensIn || 0) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0)
-				const contextWindow = this.api.getModel().info.contextWindow || 128_000
-				const maxAllowedSize = Math.max(contextWindow - 40_000, contextWindow * 0.8)
-				if (totalTokens >= maxAllowedSize) {
+				if (this.contextWindow.shouldTruncateHistory(this.apiConversationHistory)) {
 					const truncatedMessages = truncateHalfConversation(this.apiConversationHistory)
 					await this.overwriteApiConversationHistory(truncatedMessages)
 				}
@@ -2088,6 +2088,18 @@ export class Cline {
 		userContent = parsedUserContent
 		// add environment details as its own text block, separate from tool results
 		userContent.push({ type: "text", text: environmentDetails })
+
+		if (this.contextWindow) {
+			const newMessageSize = this.contextWindow.calculateMessageSize(userContent)
+			const errorMessage = this.contextWindow.validateMessageSize(newMessageSize)
+
+			if (errorMessage) {
+				await this.say("error", errorMessage)
+				this.abortTask()
+				this.userMessageContentReady = true // keep chat enabled for retry
+				return true
+			}
+		}
 
 		await this.addToApiConversationHistory({ role: "user", content: userContent })
 
