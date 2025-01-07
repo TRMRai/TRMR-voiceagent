@@ -8,7 +8,10 @@ export function convertToOpenAiMessages(
 
 	for (const anthropicMessage of anthropicMessages) {
 		if (typeof anthropicMessage.content === "string") {
-			openAiMessages.push({ role: anthropicMessage.role, content: anthropicMessage.content })
+			openAiMessages.push({
+				role: anthropicMessage.role,
+				content: anthropicMessage.content,
+			})
 		} else {
 			// image_url.url is base64 encoded image data
 			// ensure it contains the content-type of the image: data:image/png;base64,
@@ -85,7 +88,9 @@ export function convertToOpenAiMessages(
 							if (part.type === "image") {
 								return {
 									type: "image_url",
-									image_url: { url: `data:${part.source.media_type};base64,${part.source.data}` },
+									image_url: {
+										url: `data:${part.source.media_type};base64,${part.source.data}`,
+									},
 								}
 							}
 							return { type: "text", text: part.text }

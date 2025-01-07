@@ -6,6 +6,9 @@ import { vscode } from "../../utils/vscode"
 import CodeBlock, { CODE_BLOCK_BG_COLOR } from "../common/CodeBlock"
 import { ChatRowContent, ProgressIndicator } from "./ChatRow"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import styled from "styled-components"
+import { CheckpointControls, CheckpointOverlay } from "../common/CheckpointControls"
+import { findLast } from "../../../../src/shared/array"
 
 interface BrowserSessionRowProps {
 	messages: ClineMessage[]
@@ -137,6 +140,11 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 		return launchMessage?.say === "browser_action_launch"
 	}, [messages])
 
+	const lastCheckpointMessageTs = useMemo(() => {
+		const lastCheckpointMessage = findLast(messages, (m) => m.lastCheckpointHash !== undefined)
+		return lastCheckpointMessage?.ts
+	}, [messages])
+
 	// Find the latest available URL and screenshot
 	const latestState = useMemo(() => {
 		for (let i = pages.length - 1; i >= 0; i--) {
@@ -150,7 +158,12 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 				}
 			}
 		}
-		return { url: undefined, mousePosition: undefined, consoleLogs: undefined, screenshot: undefined }
+		return {
+			url: undefined,
+			mousePosition: undefined,
+			consoleLogs: undefined,
+			screenshot: undefined,
+		}
 	}, [pages])
 
 	const currentPage = pages[currentPageIndex]
@@ -212,15 +225,29 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 	// Use latest click position while browsing, otherwise use display state
 	const mousePosition = isBrowsing ? latestClickPosition || displayState.mousePosition : displayState.mousePosition
 
+	let shouldShowCheckpoints = true
+	if (isLast) {
+		shouldShowCheckpoints = lastModifiedMessage?.ask === "resume_completed_task" || lastModifiedMessage?.ask === "resume_task"
+	}
+
 	const [browserSessionRow, { height }] = useSize(
-		<div style={{ padding: "10px 6px 10px 15px", marginBottom: -10 }}>
-			<div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+		<BrowserSessionRowContainer style={{ marginBottom: -10 }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: "10px",
+					marginBottom: "10px",
+				}}>
 				{isBrowsing ? (
 					<ProgressIndicator />
 				) : (
 					<span
 						className={`codicon codicon-inspect`}
-						style={{ color: "var(--vscode-foreground)", marginBottom: "-1.5px" }}></span>
+						style={{
+							color: "var(--vscode-foreground)",
+							marginBottom: "-1.5px",
+						}}></span>
 				)}
 				<span style={{ fontWeight: "bold" }}>
 					<>{isAutoApproved ? "Cline is using the browser:" : "Cline wants to use the browser:"}</>
@@ -300,7 +327,10 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 							}}>
 							<span
 								className="codicon codicon-globe"
-								style={{ fontSize: "80px", color: "var(--vscode-descriptionForeground)" }}
+								style={{
+									fontSize: "80px",
+									color: "var(--vscode-descriptionForeground)",
+								}}
 							/>
 						</div>
 					)}
@@ -370,7 +400,9 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 					</div>
 				</div>
 			)}
-		</div>,
+
+			{shouldShowCheckpoints && <CheckpointOverlay messageTs={lastCheckpointMessageTs} />}
+		</BrowserSessionRowContainer>,
 	)
 
 	// Height change effect
@@ -535,5 +567,14 @@ const BrowserCursor: React.FC<{ style?: React.CSSProperties }> = ({ style }) => 
 		/>
 	)
 }
+
+const BrowserSessionRowContainer = styled.div`
+	padding: 10px 6px 10px 15px;
+	position: relative;
+
+	&:hover ${CheckpointControls} {
+		opacity: 1;
+	}
+`
 
 export default BrowserSessionRow

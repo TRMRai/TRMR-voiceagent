@@ -162,7 +162,9 @@ export class DiffViewProvider {
 		// get text after save in case there is any auto-formatting done by the editor
 		const postSaveContent = updatedDocument.getText()
 
-		await vscode.window.showTextDocument(vscode.Uri.file(absolutePath), { preview: false })
+		await vscode.window.showTextDocument(vscode.Uri.file(absolutePath), {
+			preview: false,
+		})
 		await this.closeAllDiffViews()
 
 		/*
@@ -220,7 +222,12 @@ export class DiffViewProvider {
 			)
 		}
 
-		return { newProblemsMessage, userEdits, autoFormattingEdits, finalContent: normalizedPostSaveContent }
+		return {
+			newProblemsMessage,
+			userEdits,
+			autoFormattingEdits,
+			finalContent: normalizedPostSaveContent,
+		}
 	}
 
 	async revertChanges(): Promise<void> {

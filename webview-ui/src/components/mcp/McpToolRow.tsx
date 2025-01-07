@@ -37,7 +37,13 @@ const McpToolRow = ({ tool }: McpToolRowProps) => {
 							borderRadius: "3px",
 							padding: "8px",
 						}}>
-						<div style={{ marginBottom: "4px", opacity: 0.8, fontSize: "11px", textTransform: "uppercase" }}>
+						<div
+							style={{
+								marginBottom: "4px",
+								opacity: 0.8,
+								fontSize: "11px",
+								textTransform: "uppercase",
+							}}>
 							Parameters
 						</div>
 						{Object.entries(tool.inputSchema.properties as Record<string, any>).map(([paramName, schema]) => {
@@ -61,7 +67,14 @@ const McpToolRow = ({ tool }: McpToolRowProps) => {
 											marginRight: "8px",
 										}}>
 										{paramName}
-										{isRequired && <span style={{ color: "var(--vscode-errorForeground)" }}>*</span>}
+										{isRequired && (
+											<span
+												style={{
+													color: "var(--vscode-errorForeground)",
+												}}>
+												*
+											</span>
+										)}
 									</code>
 									<span
 										style={{

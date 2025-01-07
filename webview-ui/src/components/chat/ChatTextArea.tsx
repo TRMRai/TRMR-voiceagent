@@ -553,7 +553,12 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						bottom: 9.5, // should be 10 but doesnt look good on mac
 						zIndex: 2,
 					}}>
-					<div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "row",
+							alignItems: "center",
+						}}>
 						<div
 							className={`input-icon-button ${shouldDisableImages ? "disabled" : ""} codicon codicon-device-camera`}
 							onClick={() => {

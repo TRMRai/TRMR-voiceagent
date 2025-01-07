@@ -153,7 +153,11 @@ const OpenRouterModelPicker: React.FC = () => {
 						}}
 						onFocus={() => setIsDropdownVisible(true)}
 						onKeyDown={handleKeyDown}
-						style={{ width: "100%", zIndex: OPENROUTER_MODEL_PICKER_Z_INDEX, position: "relative" }}>
+						style={{
+							width: "100%",
+							zIndex: OPENROUTER_MODEL_PICKER_Z_INDEX,
+							position: "relative",
+						}}>
 						{searchTerm && (
 							<div
 								className="input-icon-button codicon codicon-close"

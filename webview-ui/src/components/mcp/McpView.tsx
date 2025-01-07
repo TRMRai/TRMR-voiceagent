@@ -120,7 +120,12 @@ const McpView = ({ onDone }: McpViewProps) => {
 
 				{/* Server List */}
 				{servers.length > 0 && (
-					<div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: "10px",
+						}}>
 						{servers.map((server) => (
 							<ServerRow key={server.name} server={server} />
 						))}
@@ -224,7 +229,10 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 						appearance="secondary"
 						onClick={handleRestart}
 						disabled={server.status === "connecting"}
-						style={{ width: "calc(100% - 20px)", margin: "0 10px 10px 10px" }}>
+						style={{
+							width: "calc(100% - 20px)",
+							margin: "0 10px 10px 10px",
+						}}>
 						{server.status === "connecting" ? "Retrying..." : "Retry Connection"}
 					</VSCodeButton>
 				</div>
@@ -245,13 +253,23 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 
 							<VSCodePanelView id="tools-view">
 								{server.tools && server.tools.length > 0 ? (
-									<div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+									<div
+										style={{
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px",
+											width: "100%",
+										}}>
 										{server.tools.map((tool) => (
 											<McpToolRow key={tool.name} tool={tool} />
 										))}
 									</div>
 								) : (
-									<div style={{ padding: "10px 0", color: "var(--vscode-descriptionForeground)" }}>
+									<div
+										style={{
+											padding: "10px 0",
+											color: "var(--vscode-descriptionForeground)",
+										}}>
 										No tools found
 									</div>
 								)}
@@ -260,7 +278,13 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 							<VSCodePanelView id="resources-view">
 								{(server.resources && server.resources.length > 0) ||
 								(server.resourceTemplates && server.resourceTemplates.length > 0) ? (
-									<div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+									<div
+										style={{
+											display: "flex",
+											flexDirection: "column",
+											gap: "8px",
+											width: "100%",
+										}}>
 										{[...(server.resourceTemplates || []), ...(server.resources || [])].map((item) => (
 											<McpResourceRow
 												key={"uriTemplate" in item ? item.uriTemplate : item.uri}
@@ -269,7 +293,11 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 										))}
 									</div>
 								) : (
-									<div style={{ padding: "10px 0", color: "var(--vscode-descriptionForeground)" }}>
+									<div
+										style={{
+											padding: "10px 0",
+											color: "var(--vscode-descriptionForeground)",
+										}}>
 										No resources found
 									</div>
 								)}
@@ -280,7 +308,10 @@ const ServerRow = ({ server }: { server: McpServer }) => {
 							appearance="secondary"
 							onClick={handleRestart}
 							disabled={server.status === "connecting"}
-							style={{ width: "calc(100% - 14px)", margin: "0 7px 3px 7px" }}>
+							style={{
+								width: "calc(100% - 14px)",
+								margin: "0 7px 3px 7px",
+							}}>
 							{server.status === "connecting" ? "Restarting..." : "Restart Server"}
 						</VSCodeButton>
 					</div>

@@ -39,7 +39,13 @@ export class AnthropicHandler implements ApiHandler {
 						model: modelId,
 						max_tokens: this.getModel().info.maxTokens || 8192,
 						temperature: 0,
-						system: [{ text: systemPrompt, type: "text", cache_control: { type: "ephemeral" } }], // setting cache breakpoint for system prompt so new tasks can reuse it
+						system: [
+							{
+								text: systemPrompt,
+								type: "text",
+								cache_control: { type: "ephemeral" },
+							},
+						], // setting cache breakpoint for system prompt so new tasks can reuse it
 						messages: messages.map((message, index) => {
 							if (index === lastUserMsgIndex || index === secondLastMsgUserIndex) {
 								return {
@@ -50,12 +56,19 @@ export class AnthropicHandler implements ApiHandler {
 													{
 														type: "text",
 														text: message.content,
-														cache_control: { type: "ephemeral" },
+														cache_control: {
+															type: "ephemeral",
+														},
 													},
 												]
 											: message.content.map((content, contentIndex) =>
 													contentIndex === message.content.length - 1
-														? { ...content, cache_control: { type: "ephemeral" } }
+														? {
+																...content,
+																cache_control: {
+																	type: "ephemeral",
+																},
+															}
 														: content,
 												),
 								}
@@ -77,7 +90,9 @@ export class AnthropicHandler implements ApiHandler {
 							case "claude-3-opus-20240229":
 							case "claude-3-haiku-20240307":
 								return {
-									headers: { "anthropic-beta": "prompt-caching-2024-07-31" },
+									headers: {
+										"anthropic-beta": "prompt-caching-2024-07-31",
+									},
 								}
 							default:
 								return undefined
@@ -165,6 +180,9 @@ export class AnthropicHandler implements ApiHandler {
 			const id = modelId as AnthropicModelId
 			return { id, info: anthropicModels[id] }
 		}
-		return { id: anthropicDefaultModelId, info: anthropicModels[anthropicDefaultModelId] }
+		return {
+			id: anthropicDefaultModelId,
+			info: anthropicModels[anthropicDefaultModelId],
+		}
 	}
 }

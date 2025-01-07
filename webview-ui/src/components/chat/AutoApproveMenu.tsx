@@ -157,7 +157,9 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 					}
 				}}>
 				<VSCodeCheckbox
-					style={{ pointerEvents: hasEnabledActions ? "auto" : "none" }}
+					style={{
+						pointerEvents: hasEnabledActions ? "auto" : "none",
+					}}
 					checked={hasEnabledActions && autoApprovalSettings.enabled}
 					disabled={!hasEnabledActions}
 					// onChange={(e) => {
@@ -182,7 +184,13 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 							setIsExpanded((prev) => !prev)
 						}
 					}}>
-					<span style={{ color: "var(--vscode-foreground)", whiteSpace: "nowrap" }}>Auto-approve:</span>
+					<span
+						style={{
+							color: "var(--vscode-foreground)",
+							whiteSpace: "nowrap",
+						}}>
+						Auto-approve:
+					</span>
 					<span
 						style={{
 							whiteSpace: "nowrap",
