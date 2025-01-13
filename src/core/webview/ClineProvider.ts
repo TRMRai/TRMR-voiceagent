@@ -1398,12 +1398,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			const fileExists = await fileExistsAtPath(apiConversationHistoryFilePath)
 			if (fileExists) {
 				const apiConversationHistory = JSON.parse(await fs.readFile(apiConversationHistoryFilePath, "utf8"))
-			return {
-				historyItem,
-				taskDirPath,
-				apiConversationHistoryFilePath,
-				uiMessagesFilePath,
-				apiConversationHistory,
+				return {
+						historyItem,
+						taskDirPath,
+						apiConversationHistoryFilePath,
+						uiMessagesFilePath,
+						apiConversationHistory,
 				}
 			}
 		}
@@ -1436,7 +1436,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 		await this.deleteTaskFromState(id)
 
-			// Delete the task files
+		// Delete the task files
 		const apiConversationHistoryFileExists = await fileExistsAtPath(apiConversationHistoryFilePath)
 		if (apiConversationHistoryFileExists) {
 			await fs.unlink(apiConversationHistoryFilePath)
@@ -1453,12 +1453,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	}
 
 	async deleteTaskFromState(id: string) {
-			// Remove the task from history
+		// Remove the task from history
 		const taskHistory = ((await this.getGlobalState("taskHistory")) as HistoryItem[]) || []
 		const updatedTaskHistory = taskHistory.filter((task) => task.id !== id)
 		await this.updateGlobalState("taskHistory", updatedTaskHistory)
 
-			// Notify the webview that the task has been deleted
+		// Notify the webview that the task has been deleted
 		await this.postStateToWebview()
 	}
 
@@ -1541,7 +1541,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 	async clearTask() {
 		this.cline?.abortTask()
-			this.cline = undefined // removes reference to it, so once promises end it will be garbage collected
+		this.cline = undefined // removes reference to it, so once promises end it will be garbage collected
 	}
 
 	// Caching mechanism to keep track of webview messages + API conversation history per provider instance
@@ -1904,25 +1904,25 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		for (const key of this.context.globalState.keys()) {
 			await this.context.globalState.update(key, undefined)
 		}
-			const secretKeys: SecretKey[] = [
-				"apiKey",
-				"glamaApiKey",
-				"openRouterApiKey",
-				"awsAccessKey",
-				"awsSecretKey",
-				"awsSessionToken",
-				"openAiApiKey",
-				"geminiApiKey",
-				"openAiNativeApiKey",
-				"deepSeekApiKey",
+		const secretKeys: SecretKey[] = [
+			"apiKey",
+			"glamaApiKey",
+			"openRouterApiKey",
+			"awsAccessKey",
+			"awsSecretKey",
+			"awsSessionToken",
+			"openAiApiKey",
+			"geminiApiKey",
+			"openAiNativeApiKey",
+			"deepSeekApiKey",
 		]
 		for (const key of secretKeys) {
 			await this.storeSecret(key, undefined)
 		}
-			if (this.cline) {
+		if (this.cline) {
 			this.cline.abortTask()
 			this.cline = undefined
-			}
+		}
 		vscode.window.showInformationMessage("State reset")
 		await this.postStateToWebview()
 		await this.postMessageToWebview({ type: "action", action: "chatButtonClicked" })

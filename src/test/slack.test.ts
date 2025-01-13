@@ -1,24 +1,23 @@
-import { SlackNotifier } from '../services/slack'
+import { setSlackEnabled, setWebhookUrl, sendSlackMessage, notifyTaskComplete, notifyUserInputNeeded, notifyTaskFailed, notifyCommandExecution } from '../services/slack'
 
-describe('SlackNotifier', () => {
-    let slackNotifier: SlackNotifier
+describe('Slack Notifications', () => {
     let mockFetch: jest.Mock
 
     beforeEach(() => {
         mockFetch = jest.fn()
         global.fetch = mockFetch
-        slackNotifier = new SlackNotifier({
-            webhookUrl: 'https://hooks.slack.com/services/test',
-            enabled: true
-        })
+        setWebhookUrl('https://hooks.slack.com/services/test')
+        setSlackEnabled(true)
     })
 
     afterEach(() => {
         jest.resetAllMocks()
+        setSlackEnabled(false)
+        setWebhookUrl('')
     })
 
     it('should send task completion notification', async () => {
-        await slackNotifier.notifyTaskComplete('Task completed successfully')
+        await notifyTaskComplete('Task completed successfully')
         expect(mockFetch).toHaveBeenCalledWith(
             'https://hooks.slack.com/services/test',
             expect.objectContaining({
@@ -30,7 +29,7 @@ describe('SlackNotifier', () => {
     })
 
     it('should send user input needed notification', async () => {
-        await slackNotifier.notifyUserInputNeeded('What is your preference?')
+        await notifyUserInputNeeded('What is your preference?')
         expect(mockFetch).toHaveBeenCalledWith(
             'https://hooks.slack.com/services/test',
             expect.objectContaining({
@@ -42,7 +41,7 @@ describe('SlackNotifier', () => {
     })
 
     it('should send task failed notification', async () => {
-        await slackNotifier.notifyTaskFailed('Error occurred')
+        await notifyTaskFailed('Error occurred')
         expect(mockFetch).toHaveBeenCalledWith(
             'https://hooks.slack.com/services/test',
             expect.objectContaining({
@@ -54,14 +53,11 @@ describe('SlackNotifier', () => {
     })
 
     it('should not send notifications when disabled', async () => {
-        slackNotifier = new SlackNotifier({
-            webhookUrl: 'https://hooks.slack.com/services/test',
-            enabled: false
-        })
+        setSlackEnabled(false)
 
-        await slackNotifier.notifyTaskComplete('Task completed')
-        await slackNotifier.notifyUserInputNeeded('Input needed')
-        await slackNotifier.notifyTaskFailed('Task failed')
+        await notifyTaskComplete('Task completed')
+        await notifyUserInputNeeded('Input needed')
+        await notifyTaskFailed('Task failed')
 
         expect(mockFetch).not.toHaveBeenCalled()
     })
@@ -70,8 +66,26 @@ describe('SlackNotifier', () => {
         mockFetch.mockRejectedValue(new Error('Network error'))
         
         // These should not throw errors
-        await expect(slackNotifier.notifyTaskComplete('Task completed')).resolves.not.toThrow()
-        await expect(slackNotifier.notifyUserInputNeeded('Input needed')).resolves.not.toThrow()
-        await expect(slackNotifier.notifyTaskFailed('Task failed')).resolves.not.toThrow()
+        await expect(notifyTaskComplete('Task completed')).resolves.not.toThrow()
+        await expect(notifyUserInputNeeded('Input needed')).resolves.not.toThrow()
+        await expect(notifyTaskFailed('Task failed')).resolves.not.toThrow()
+    })
+
+    it('should not send message when webhook URL is not set', async () => {
+        setWebhookUrl('')
+        await sendSlackMessage('Test message')
+        expect(mockFetch).not.toHaveBeenCalled()
+    })
+
+    it('should send command execution notification', async () => {
+        await notifyCommandExecution('npm install')
+        expect(mockFetch).toHaveBeenCalledWith(
+            'https://hooks.slack.com/services/test',
+            expect.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: '🔧 Command Requested: npm install' })
+            })
+        )
     })
 })
