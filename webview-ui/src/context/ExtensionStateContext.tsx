@@ -254,7 +254,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setCurrentApiConfigName: (value) => setState((prevState) => ({ ...prevState, currentApiConfigName: value })),
 		setListApiConfigMeta,
 		onUpdateApiConfig,
-		setMode: (value: Mode) => setState((prevState) => ({ ...prevState, mode: value })),,
+		setMode: (value: Mode) => setState((prevState) => ({ ...prevState, mode: value })),
 		setSlackWebhookUrl: (value) => {
 			setState((prevState) => ({ ...prevState, slackWebhookUrl: value }))
 			vscode.postMessage({ type: "slackWebhookUrl", text: value })
