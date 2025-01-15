@@ -2054,6 +2054,11 @@ export class Cline {
 										await this.say("completion_result", result, undefined, false)
 									}
 
+									// complete command message
+									const didApprove = await askApproval("command", command)
+									if (!didApprove) {
+										break
+									}
 									// Execute command from attempt_completion
 									const [userRejected, execCommandResult] = await this.executeCommandTool(command!)
 									if (userRejected) {
