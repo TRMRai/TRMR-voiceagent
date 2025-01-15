@@ -262,6 +262,7 @@ export class Cline {
 				totalCost: apiMetrics.totalCost,
 			})
 		} catch (error) {
+			console.error("Failed to save cline messages:", error)
 		}
 	}
 
