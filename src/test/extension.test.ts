@@ -275,6 +275,8 @@ suite("Roo Code Extension Test Suite", () => {
 			startTime = Date.now()
 			let responseReceived = false
 			while (Date.now() - startTime < timeout) {
+				console.log("State:", await provider.getState())
+				console.log("Cline:", provider.cline?.clineMessages)
 				// Check provider.clineMessages
 				const messages = provider.clineMessages
 				if (messages && messages.length > 0) {
