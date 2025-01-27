@@ -155,7 +155,7 @@ suite("Roo Code Extension Test Suite", () => {
 		const interval = 1000
 
 		// Get extension instance
-		const extension = vscode.extensions.getExtension("RooVeterinaryInc.roo-cline")
+		const extension = await vscode.extensions.getExtension("RooVeterinaryInc.roo-cline")
 		if (!extension) {
 			assert.fail("Extension not found")
 			return
@@ -169,7 +169,7 @@ suite("Roo Code Extension Test Suite", () => {
 		}
 
 		// Get provider
-		const provider = api.sidebarProvider
+		const provider = await api.sidebarProvider
 		if (!provider) {
 			assert.fail("Provider not found")
 			return
@@ -213,7 +213,7 @@ suite("Roo Code Extension Test Suite", () => {
 			provider.postMessageToWebview = async function (message) {
 				if (message.type === "state") {
 					webviewReady = true
-					console.log("Webview state received:", message)
+					//console.log("Webview state received:", message)
 					if (message.state?.codeMessages?.length > 0) {
 						messagesReceived = true
 						console.log("Messages in state:", message.state.codeMessages)
@@ -306,6 +306,7 @@ suite("Roo Code Extension Test Suite", () => {
 				}
 
 				await new Promise((resolve) => setTimeout(resolve, interval))
+				console.log("Waiting for response...")
 			}
 
 			if (!responseReceived) {
