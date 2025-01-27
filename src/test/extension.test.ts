@@ -38,9 +38,9 @@ suite("Roo Code Extension Test Suite", () => {
 				}
 
 				// Verify API key is set and valid
-				const apiKey = process.env.OPEN_ROUTER_API_KEY
+				const apiKey = process.env.OPENROUTER_API_KEY
 				if (!apiKey) {
-					done(new Error("OPEN_ROUTER_API_KEY environment variable is not set"))
+					done(new Error("OPENROUTER_API_KEY environment variable is not set"))
 					return
 				}
 				if (!apiKey.startsWith("sk-or-v1-")) {
@@ -178,9 +178,9 @@ suite("Roo Code Extension Test Suite", () => {
 		// Set up API configuration
 		await provider.updateGlobalState("apiProvider", "openrouter")
 		await provider.updateGlobalState("openRouterModelId", "anthropic/claude-3.5-sonnet")
-		const apiKey = process.env.OPEN_ROUTER_API_KEY
+		const apiKey = process.env.OPENROUTER_API_KEY
 		if (!apiKey) {
-			assert.fail("OPEN_ROUTER_API_KEY environment variable is not set")
+			assert.fail("OPENROUTER_API_KEY environment variable is not set")
 			return
 		}
 		await provider.storeSecret("openRouterApiKey", apiKey)
