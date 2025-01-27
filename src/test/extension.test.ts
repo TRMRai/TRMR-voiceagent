@@ -149,7 +149,7 @@ suite("Roo Code Extension Test Suite", () => {
 
 	test("Should handle prompt and response correctly", async function () {
 		// @ts-ignore
-		this.timeout(120000) // Increase timeout for API request
+		this.timeout(600000) // Increase timeout for API request
 
 		const timeout = 60000
 		const interval = 1000
@@ -225,6 +225,7 @@ suite("Roo Code Extension Test Suite", () => {
 			// Wait for webview to launch and receive initial state
 			let startTime = Date.now()
 			while (Date.now() - startTime < 180000) {
+				console.log("Webview ready:", webviewReady)
 				if (webviewReady) {
 					// Wait an additional second for webview to fully initialize
 					await new Promise((resolve) => setTimeout(resolve, 1000))
