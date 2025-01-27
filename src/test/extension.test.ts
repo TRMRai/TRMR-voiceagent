@@ -116,7 +116,8 @@ suite("Roo Code Extension Test Suite", () => {
 		const commands = await vscode.commands.getCommands(true)
 		console.log(
 			"Available commands:",
-			commands.filter((cmd: string) => cmd.startsWith("roo-")),
+			// @ts-ignore
+			commands.filter((cmd) => cmd.startsWith("roo-")),
 		)
 
 		// Test core commands are registered
@@ -208,10 +209,8 @@ suite("Roo Code Extension Test Suite", () => {
 			let webviewReady = false
 			let messagesReceived = false
 			const originalPostMessage = provider.postMessageToWebview.bind(provider)
-			provider.postMessageToWebview = async function (message: {
-				type: string
-				state: { codeMessages: string | any[] }
-			}) {
+			// @ts-ignore
+			provider.postMessageToWebview = async function (message) {
 				if (message.type === "state") {
 					webviewReady = true
 					console.log("Webview state received:", message)
@@ -281,8 +280,8 @@ suite("Roo Code Extension Test Suite", () => {
 				if (messages && messages.length > 0) {
 					console.log("Provider messages:", JSON.stringify(messages, null, 2))
 					const hasResponse = messages.some(
-						(m: { type: string; text: string }) =>
-							m.type === "say" && m.text && m.text.toLowerCase().includes("roo"),
+						// @ts-ignore
+						(m) => m.type === "say" && m.text && m.text.toLowerCase().includes("roo"),
 					)
 					if (hasResponse) {
 						console.log('Found response containing "Roo" in provider messages')
@@ -296,8 +295,8 @@ suite("Roo Code Extension Test Suite", () => {
 				if (clineMessages && clineMessages.length > 0) {
 					console.log("Cline messages:", JSON.stringify(clineMessages, null, 2))
 					const hasResponse = clineMessages.some(
-						(m: { type: string; text: string }) =>
-							m.type === "say" && m.text && m.text.toLowerCase().includes("roo"),
+						// @ts-ignore
+						(m) => m.type === "say" && m.text && m.text.toLowerCase().includes("roo"),
 					)
 					if (hasResponse) {
 						console.log('Found response containing "Roo" in cline messages')
