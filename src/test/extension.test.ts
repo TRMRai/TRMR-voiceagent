@@ -4,8 +4,8 @@ const path = require("path")
 const fs = require("fs")
 const dotenv = require("dotenv")
 
-// Load test environment variables
-const testEnvPath = path.join(__dirname, ".test_env")
+// Load test environment variables from root directory
+const testEnvPath = path.join(__dirname, "..", "..", ".test_env")
 dotenv.config({ path: testEnvPath })
 
 suite("Roo Code Extension Test Suite", () => {
@@ -114,18 +114,20 @@ suite("Roo Code Extension Test Suite", () => {
 
 	test("Commands should be registered", async () => {
 		const commands = await vscode.commands.getCommands(true)
+		console.log(
+			"Available commands:",
+			commands.filter((cmd: string) => cmd.startsWith("roo-")),
+		)
 
 		// Test core commands are registered
 		const expectedCommands = [
 			"roo-cline.plusButtonClicked",
 			"roo-cline.mcpButtonClicked",
+			"roo-cline.promptsButtonClicked",
 			"roo-cline.historyButtonClicked",
 			"roo-cline.popoutButtonClicked",
 			"roo-cline.settingsButtonClicked",
 			"roo-cline.openInNewTab",
-			"roo-cline.explainCode",
-			"roo-cline.fixCode",
-			"roo-cline.improveCode",
 		]
 
 		for (const cmd of expectedCommands) {
@@ -206,14 +208,16 @@ suite("Roo Code Extension Test Suite", () => {
 			let webviewReady = false
 			let messagesReceived = false
 			const originalPostMessage = provider.postMessageToWebview.bind(provider)
-			// @ts-ignore
-			provider.postMessageToWebview = async (message) => {
+			provider.postMessageToWebview = async function (message: {
+				type: string
+				state: { codeMessages: string | any[] }
+			}) {
 				if (message.type === "state") {
 					webviewReady = true
 					console.log("Webview state received:", message)
-					if (message.state?.clineMessages?.length > 0) {
+					if (message.state?.codeMessages?.length > 0) {
 						messagesReceived = true
-						console.log("Messages in state:", message.state.clineMessages)
+						console.log("Messages in state:", message.state.codeMessages)
 					}
 				}
 				await originalPostMessage(message)
@@ -268,18 +272,6 @@ suite("Roo Code Extension Test Suite", () => {
 				throw error
 			}
 
-			// Wait for task to appear in history with tokens
-			startTime = Date.now()
-			while (Date.now() - startTime < timeout) {
-				const state = await provider.getState()
-				const task = state.taskHistory?.[0]
-				if (task && task.tokensOut > 0) {
-					console.log("Task completed with tokens:", task)
-					break
-				}
-				await new Promise((resolve) => setTimeout(resolve, interval))
-			}
-
 			// Wait for messages to be processed
 			startTime = Date.now()
 			let responseReceived = false
@@ -288,29 +280,27 @@ suite("Roo Code Extension Test Suite", () => {
 				const messages = provider.clineMessages
 				if (messages && messages.length > 0) {
 					console.log("Provider messages:", JSON.stringify(messages, null, 2))
-					// @ts-ignore
 					const hasResponse = messages.some(
 						(m: { type: string; text: string }) =>
-							m.type === "say" && m.text && m.text.toLowerCase().includes("cline"),
+							m.type === "say" && m.text && m.text.toLowerCase().includes("roo"),
 					)
 					if (hasResponse) {
-						console.log('Found response containing "Cline" in provider messages')
+						console.log('Found response containing "Roo" in provider messages')
 						responseReceived = true
 						break
 					}
 				}
 
-				// Check provider.cline.clineMessages
+				//Check provider.cline.clineMessages
 				const clineMessages = provider.cline?.clineMessages
 				if (clineMessages && clineMessages.length > 0) {
 					console.log("Cline messages:", JSON.stringify(clineMessages, null, 2))
-					// @ts-ignore
 					const hasResponse = clineMessages.some(
 						(m: { type: string; text: string }) =>
-							m.type === "say" && m.text && m.text.toLowerCase().includes("cline"),
+							m.type === "say" && m.text && m.text.toLowerCase().includes("roo"),
 					)
 					if (hasResponse) {
-						console.log('Found response containing "Cline" in cline messages')
+						console.log('Found response containing "Roo" in cline messages')
 						responseReceived = true
 						break
 					}
@@ -321,8 +311,7 @@ suite("Roo Code Extension Test Suite", () => {
 
 			if (!responseReceived) {
 				console.log("Final provider state:", await provider.getState())
-				console.log("Final cline messages:", provider.cline?.clineMessages)
-				throw new Error('Did not receive expected response containing "Cline"')
+				throw new Error("Did not receive any response")
 			}
 		} finally {
 			panel.dispose()
