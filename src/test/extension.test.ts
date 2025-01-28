@@ -149,10 +149,13 @@ suite("Roo Code Extension Test Suite", () => {
 
 	test("Should handle prompt and response correctly", async function () {
 		// @ts-ignore
-		this.timeout(600000) // Increase timeout for API request
+		this.timeout(900000) // Increase timeout for CI environment
 
-		const timeout = 60000
-		const interval = 1000
+		const timeout = 120000 // Increase timeout for CI
+		const interval = 2000 // Increase interval to reduce CPU usage
+		const authTimeout = 300000 // 5 minutes timeout for auth provider
+
+		console.log("Starting prompt and response test...")
 
 		// Get extension instance
 		const extension = await vscode.extensions.getExtension("RooVeterinaryInc.roo-cline")
@@ -162,6 +165,7 @@ suite("Roo Code Extension Test Suite", () => {
 		}
 
 		// Activate extension and get API
+		console.log("Activating extension...")
 		const api = await extension.activate()
 		if (!api) {
 			assert.fail("Extension API not found")
@@ -169,6 +173,7 @@ suite("Roo Code Extension Test Suite", () => {
 		}
 
 		// Get provider
+		console.log("Getting provider...")
 		const provider = await api.sidebarProvider
 		if (!provider) {
 			assert.fail("Provider not found")
@@ -176,6 +181,7 @@ suite("Roo Code Extension Test Suite", () => {
 		}
 
 		// Set up API configuration
+		console.log("Setting up API configuration...")
 		await provider.updateGlobalState("apiProvider", "openrouter")
 		await provider.updateGlobalState("openRouterModelId", "anthropic/claude-3.5-sonnet")
 		const apiKey = process.env.OPENROUTER_API_KEY
@@ -186,6 +192,7 @@ suite("Roo Code Extension Test Suite", () => {
 		await provider.storeSecret("openRouterApiKey", apiKey)
 
 		// Create webview panel with development options
+		console.log("Creating webview panel...")
 		const extensionUri = extension.extensionUri
 		const panel = vscode.window.createWebviewPanel("roo-cline.SidebarProvider", "Roo Code", vscode.ViewColumn.One, {
 			enableScripts: true,
@@ -203,57 +210,96 @@ suite("Roo Code Extension Test Suite", () => {
 			}
 
 			// Initialize provider with panel
+			console.log("Initializing provider with panel...")
 			await provider.resolveWebviewView(panel)
-			// Set up message tracking
+
+			// Set up message tracking with improved error handling
 			let webviewReady = false
 			let messagesReceived = false
+			let authProviderRegistered = false
 			const originalPostMessage = await provider.postMessageToWebview.bind(provider)
+
 			// @ts-ignore
 			provider.postMessageToWebview = async function (message) {
-				console.log("Posting message:", message)
-				if (message.type === "state") {
-					webviewReady = true
-					//console.log("Webview state received:", message)
-					if (message.state?.codeMessages?.length > 0) {
-						messagesReceived = true
-						console.log("Messages in state:", message.state.codeMessages)
+				try {
+					console.log("Posting message:", JSON.stringify(message))
+					if (message.type === "state") {
+						webviewReady = true
+						console.log("Webview state received")
+						if (message.state?.codeMessages?.length > 0) {
+							messagesReceived = true
+							console.log("Messages in state:", message.state.codeMessages)
+						}
+						if (message.state?.authProvider) {
+							authProviderRegistered = true
+							console.log("Auth provider registered")
+						}
 					}
+					await originalPostMessage(message)
+				} catch (error) {
+					console.error("Error in postMessage:", error)
+					throw error
 				}
-				await originalPostMessage(message)
+			}
+
+			// Wait for auth provider to register
+			console.log("Waiting for auth provider registration...")
+			let startTime = Date.now()
+			while (Date.now() - startTime < authTimeout) {
+				if (authProviderRegistered) {
+					console.log("Auth provider successfully registered")
+					break
+				}
+				if (Date.now() - startTime > 60000 && !authProviderRegistered) {
+					console.log("Auth provider status check at 1 minute mark:", await provider.getState())
+				}
+				await new Promise((resolve) => setTimeout(resolve, interval))
+			}
+
+			if (!authProviderRegistered) {
+				throw new Error("Timeout waiting for auth provider registration")
 			}
 
 			// Wait for webview to launch and receive initial state
-			let startTime = Date.now()
-			while (Date.now() - startTime < 180000) {
+			console.log("Waiting for webview initialization...")
+			startTime = Date.now()
+			while (Date.now() - startTime < 300000) {
+				// 5 minutes timeout for CI
 				console.log("Webview ready:", webviewReady)
 				if (webviewReady) {
-					// Wait an additional second for webview to fully initialize
-					await new Promise((resolve) => setTimeout(resolve, 1000))
+					console.log("Webview successfully initialized")
+					// Wait additional time for webview to fully initialize
+					await new Promise((resolve) => setTimeout(resolve, 5000))
 					break
+				}
+				if (Date.now() - startTime > 60000 && !webviewReady) {
+					console.log("Webview status check at 1 minute mark")
 				}
 				await new Promise((resolve) => setTimeout(resolve, interval))
 			}
 
 			if (!webviewReady) {
-				console.log("Timeout waiting for webview to be ready: could be running in GHA")
+				throw new Error("Timeout waiting for webview initialization")
 			}
 
 			// Send webviewDidLaunch to initialize chat
+			console.log("Sending webviewDidLaunch...")
 			await provider.postMessageToWebview({ type: "webviewDidLaunch" })
 			console.log("Sent webviewDidLaunch")
 
 			// Wait for webview to fully initialize
-			await new Promise((resolve) => setTimeout(resolve, 2000))
+			await new Promise((resolve) => setTimeout(resolve, 5000))
 
 			// Restore original postMessage
 			provider.postMessageToWebview = originalPostMessage
 
 			// Wait for OpenRouter models to be fully loaded
+			console.log("Waiting for OpenRouter models...")
 			startTime = Date.now()
 			while (Date.now() - startTime < timeout) {
 				const models = await provider.readOpenRouterModels()
 				if (models && Object.keys(models).length > 0) {
-					//console.log("OpenRouter models loaded")
+					console.log("OpenRouter models successfully loaded")
 					break
 				}
 				await new Promise((resolve) => setTimeout(resolve, interval))
@@ -263,21 +309,24 @@ suite("Roo Code Extension Test Suite", () => {
 			const prompt = "Hello world, what is your name?"
 			console.log("Sending prompt:", prompt)
 
-			// Start task
+			// Start task with improved error handling
 			try {
 				await api.startNewTask(prompt)
-				console.log("Task started")
+				console.log("Task successfully started")
 			} catch (error) {
 				console.error("Error starting task:", error)
+				console.log("Provider state at error:", await provider.getState())
 				throw error
 			}
 
 			// Wait for messages to be processed
+			console.log("Waiting for response...")
 			startTime = Date.now()
 			let responseReceived = false
 			while (Date.now() - startTime < timeout) {
-				console.log("State:", await provider.getState())
-				console.log("Cline:", provider.cline?.clineMessages)
+				const state = await provider.getState()
+				console.log("Current state:", JSON.stringify(state))
+
 				// Check provider.clineMessages
 				const messages = provider.clineMessages
 				if (messages && messages.length > 0) {
@@ -293,7 +342,7 @@ suite("Roo Code Extension Test Suite", () => {
 					}
 				}
 
-				//Check provider.cline.clineMessages
+				// Check provider.cline.clineMessages
 				const clineMessages = provider.cline?.clineMessages
 				if (clineMessages && clineMessages.length > 0) {
 					console.log("Cline messages:", JSON.stringify(clineMessages, null, 2))
@@ -309,13 +358,17 @@ suite("Roo Code Extension Test Suite", () => {
 				}
 
 				await new Promise((resolve) => setTimeout(resolve, interval))
-				console.log("Waiting for response...")
 			}
 
 			if (!responseReceived) {
 				console.log("Final provider state:", await provider.getState())
-				throw new Error("Did not receive any response")
+				throw new Error("Did not receive expected response within timeout period")
 			}
+
+			console.log("Test completed successfully")
+		} catch (error) {
+			console.error("Test failed with error:", error)
+			throw error
 		} finally {
 			panel.dispose()
 		}
