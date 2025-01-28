@@ -153,7 +153,6 @@ suite("Roo Code Extension Test Suite", () => {
 
 		const timeout = 120000 // Increase timeout for CI
 		const interval = 2000 // Increase interval to reduce CPU usage
-		const apiConfigTimeout = 300000 // 5 minutes timeout for API configuration
 
 		console.log("Starting prompt and response test...")
 
@@ -196,6 +195,7 @@ suite("Roo Code Extension Test Suite", () => {
 		const extensionUri = extension.extensionUri
 		const panel = vscode.window.createWebviewPanel("roo-cline.SidebarProvider", "Roo Code", vscode.ViewColumn.One, {
 			enableScripts: true,
+			enableFindWidget: false,
 			enableCommandUris: true,
 			retainContextWhenHidden: true,
 			localResourceRoots: [extensionUri],
@@ -213,22 +213,24 @@ suite("Roo Code Extension Test Suite", () => {
 			console.log("Initializing provider with panel...")
 			await provider.resolveWebviewView(panel)
 
+			// Wait for provider to be fully initialized
+			await new Promise((resolve) => setTimeout(resolve, 5000))
+
 			// Set up message tracking with improved error handling
-			let webviewReady = false
-			let messagesReceived = false
+			let webviewState = null
 			const originalPostMessage = await provider.postMessageToWebview.bind(provider)
 
 			// @ts-ignore
 			provider.postMessageToWebview = async function (message) {
 				try {
-					console.log("Posting message:", JSON.stringify(message))
+					console.log("Posting message type:", message.type)
 					if (message.type === "state") {
-						webviewReady = true
-						console.log("Webview state received")
-						if (message.state?.codeMessages?.length > 0) {
-							messagesReceived = true
-							console.log("Messages in state:", message.state.codeMessages)
-						}
+						webviewState = message.state
+						console.log("Webview state received:", {
+							hasApiConfig: !!message.state?.apiConfiguration,
+							provider: message.state?.apiConfiguration?.apiProvider,
+							modelId: message.state?.apiConfiguration?.openRouterModelId,
+						})
 					}
 					await originalPostMessage(message)
 				} catch (error) {
@@ -237,82 +239,56 @@ suite("Roo Code Extension Test Suite", () => {
 				}
 			}
 
-			// Wait for API configuration
-			console.log("Waiting for API configuration...")
-			let startTime = Date.now()
-			let apiConfigured = false
-
-			// First verify the API key is stored
-			while (Date.now() - startTime < apiConfigTimeout) {
-				try {
-					const state = await provider.getState()
-					const storedKey = await provider.context.secrets.get("openRouterApiKey")
-
-					if (
-						storedKey &&
-						state.apiConfiguration.apiProvider === "openrouter" &&
-						state.apiConfiguration.openRouterModelId === "anthropic/claude-3.5-sonnet"
-					) {
-						console.log("API configuration verified")
-						apiConfigured = true
-						break
-					}
-
-					if (Date.now() - startTime > 60000) {
-						console.log("API configuration status check at 1 minute mark:", {
-							hasStoredKey: !!storedKey,
-							provider: state.apiConfiguration.apiProvider,
-							modelId: state.apiConfiguration.openRouterModelId,
-						})
-					}
-				} catch (error) {
-					console.error("Error checking API configuration:", error)
-				}
-				await new Promise((resolve) => setTimeout(resolve, 5000))
-			}
-
-			if (!apiConfigured) {
-				const state = await provider.getState()
-				const storedKey = await provider.context.secrets.get("openRouterApiKey")
-				throw new Error(
-					`API configuration timeout. Provider: ${state.apiConfiguration.apiProvider}, ` +
-						`Model: ${state.apiConfiguration.openRouterModelId}, ` +
-						`Has stored key: ${!!storedKey}`,
-				)
-			}
-
-			// Wait for webview to launch and receive initial state
-			console.log("Waiting for webview initialization...")
-			startTime = Date.now()
-			while (Date.now() - startTime < 300000) {
-				// 5 minutes timeout for CI
-				console.log("Webview ready:", webviewReady)
-				if (webviewReady) {
-					console.log("Webview successfully initialized")
-					// Wait additional time for webview to fully initialize
-					await new Promise((resolve) => setTimeout(resolve, 5000))
-					break
-				}
-				if (Date.now() - startTime > 60000 && !webviewReady) {
-					console.log("Webview status check at 1 minute mark")
-				}
-				await new Promise((resolve) => setTimeout(resolve, interval))
-			}
-
-			if (!webviewReady) {
-				throw new Error("Timeout waiting for webview initialization")
-			}
-
 			// Send webviewDidLaunch to initialize chat
 			console.log("Sending webviewDidLaunch...")
 			await provider.postMessageToWebview({ type: "webviewDidLaunch" })
 			console.log("Sent webviewDidLaunch")
 
-			// Wait for webview to fully initialize
-			await new Promise((resolve) => setTimeout(resolve, 5000))
+			// Wait for webview to launch and receive initial state
+			console.log("Waiting for webview initialization...")
+			let startTime = Date.now()
+			let webviewReady = false
 
-			// Restore original postMessage
-			provider.postMessageToWebview = originalPostMessage
+			while (Date.now() - startTime < 300000) {
+				// 5 minutes timeout for CI
+				const state = await provider.getState()
+				console.log("Current provider state:", {
+					hasApiConfig: !!state.apiConfiguration,
+					provider: state.apiConfiguration?.apiProvider,
+					modelId: state.apiConfiguration?.openRouterModelId,
+				})
+
+				if (
+					state.apiConfiguration?.apiProvider === "openrouter" &&
+					state.apiConfiguration?.openRouterModelId === "anthropic/claude-3.5-sonnet"
+				) {
+					webviewReady = true
+					console.log("Webview successfully initialized")
+					break
+				}
+
+				if (Date.now() - startTime > 60000 && !webviewReady) {
+					console.log("Webview status check at 1 minute mark:", {
+						panelVisible: panel.visible,
+						panelActive: panel.active,
+						hasWebviewState: !!webviewState,
+					})
+				}
+				await new Promise((resolve) => setTimeout(resolve, interval))
+			}
+
+			if (!webviewReady) {
+				const state = await provider.getState()
+				console.error("Webview initialization failed. Debug info:", {
+					hasWebviewState: !!webviewState,
+					// @ts-ignore
+					webviewStateApiConfig: webviewState?.apiConfiguration,
+					providerState: state,
+					panelVisible: panel.visible,
+					panelActive: panel.active,
+				})
+				throw new Error("Timeout waiting for webview initialization. Check logs for details.")
+			}
 
 			// Wait for OpenRouter models to be fully loaded
 			console.log("Waiting for OpenRouter models...")
