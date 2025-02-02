@@ -59,6 +59,7 @@ export const toolParamNames = [
 	"message",
 	"prompt",
 	"monitor",
+	"projectDir",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]
