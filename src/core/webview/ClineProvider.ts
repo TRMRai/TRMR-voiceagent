@@ -2382,6 +2382,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			customModes: await this.customModesManager.getCustomModes(),
 			experiments: experiments ?? experimentDefault,
 			mcpServers: this.mcpHub?.getAllServers() ?? [],
+			platform: process.platform,
 		}
 	}
 

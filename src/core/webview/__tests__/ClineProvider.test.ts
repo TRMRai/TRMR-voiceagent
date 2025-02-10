@@ -351,6 +351,7 @@ describe("ClineProvider", () => {
 			mode: defaultModeSlug,
 			customModes: [],
 			experiments: experimentDefault,
+			platform: "win32",
 		}
 
 		const message: ExtensionMessage = {

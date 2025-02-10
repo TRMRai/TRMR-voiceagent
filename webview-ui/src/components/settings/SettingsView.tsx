@@ -63,6 +63,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 		setExperimentEnabled,
 		alwaysAllowModeSwitch,
 		setAlwaysAllowModeSwitch,
+		platform,
 	} = useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [modelIdErrorMessage, setModelIdErrorMessage] = useState<string | undefined>(undefined)
@@ -701,7 +702,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 							</div>
 						)}
 
-						{process.platform !== "win32" && (
+						{platform !== "win32" && (
 							<div style={{ marginBottom: 15 }}>
 								<div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
 									<span style={{ color: "var(--vscode-errorForeground)" }}>⚠️</span>
