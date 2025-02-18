@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { readFile } from "fs/promises"
 import path from "path"
 
 import { Parser, Language, Node } from "web-tree-sitter"
@@ -26,7 +26,7 @@ const supportedTypes = [
 
 export async function getChunks(filepath: string): Promise<CodeChunk[]> {
 	const parser = await getParserForFile(filepath)
-	const sourceCode = readFileSync(filepath, "utf-8")
+	const sourceCode = await readFile(filepath, "utf-8")
 	const tree = parser.parse(sourceCode)
 	const chunks: CodeChunk[] = []
 
