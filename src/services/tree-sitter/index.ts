@@ -21,7 +21,6 @@ export async function parseSourceCodeForDefinitionsTopLevel(dirPath: string): Pr
 	const { filesToParse, remainingFiles } = separateFiles(allFiles)
 
 	const languageParsers = await loadRequiredLanguageParsers(filesToParse)
-	console.log("languageParsers", Object.keys(languageParsers))
 
 	// Parse specific files we have language parsers for
 	// const filesWithoutDefinitions: string[] = []
