@@ -7,15 +7,18 @@ import { vscode } from "@/utils/vscode"
 
 import { Provider, ProviderMetadata, isProvider, ProviderId } from "./types"
 
+type ConfigurationKey = keyof ApiConfiguration
+type ConfigurationValue<K extends ConfigurationKey> = ApiConfiguration[K]
+
 type UseProvider = {
 	provider?: Provider
 	providers: ProviderMetadata[]
 	setProvider: (provider: Provider) => void
-	setProviderValue: (key: keyof ApiConfiguration, value: string) => void
+	setProviderValue: <K extends ConfigurationKey>(key: K, value: ConfigurationValue<K>) => void
 }
 
 export const useProvider = (): UseProvider => {
-	const { apiConfiguration, currentApiConfigName, listApiConfigMeta, onUpdateApiConfig } = useExtensionState()
+	const { currentApiConfigName, apiConfiguration, listApiConfigMeta } = useExtensionState()
 
 	const providers = useMemo(
 		() =>
@@ -65,10 +68,14 @@ export const useProvider = (): UseProvider => {
 	)
 
 	const setProviderValue = useCallback(
-		(key: keyof ApiConfiguration, value: string) => {
-			onUpdateApiConfig({ ...apiConfiguration, [key]: value })
+		<K extends keyof ApiConfiguration>(key: K, value: ApiConfiguration[K]) => {
+			vscode.postMessage({
+				type: "upsertApiConfiguration",
+				text: currentApiConfigName,
+				apiConfiguration: { ...apiConfiguration, [key]: value },
+			})
 		},
-		[apiConfiguration, onUpdateApiConfig],
+		[currentApiConfigName, apiConfiguration],
 	)
 
 	return { provider, providers, setProvider, setProviderValue }
