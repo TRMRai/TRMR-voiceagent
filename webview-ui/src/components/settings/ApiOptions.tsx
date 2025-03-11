@@ -964,19 +964,11 @@ const ApiOptions = ({
 											apiConfiguration?.openAiCustomModelInfo?.cacheReadsPrice?.toString() ?? "0"
 										}
 										type="text"
-										style={{
-											borderColor: (() => {
-												const value = apiConfiguration?.openAiCustomModelInfo?.cacheReadsPrice
-
-												if (!value && value !== 0) {
-													return "var(--vscode-input-border)"
-												}
-
-												return value >= 0
-													? "var(--vscode-charts-green)"
-													: "var(--vscode-errorForeground)"
-											})(),
-										}}
+										className={cn("w-full", {
+											"border-vscode-input": !apiConfiguration?.openAiCustomModelInfo?.cacheReadsPrice && apiConfiguration?.openAiCustomModelInfo?.cacheReadsPrice !== 0,
+											"border-vscode-green": apiConfiguration?.openAiCustomModelInfo?.cacheReadsPrice >= 0,
+											"border-vscode-error": apiConfiguration?.openAiCustomModelInfo?.cacheReadsPrice < 0,
+										})}
 										onChange={handleInputChange("openAiCustomModelInfo", (e) => {
 											const value = (e.target as HTMLInputElement).value
 											const parsed = parseFloat(value)
@@ -1005,19 +997,11 @@ const ApiOptions = ({
 											apiConfiguration?.openAiCustomModelInfo?.cacheWritesPrice?.toString() ?? "0"
 										}
 										type="text"
-										style={{
-											borderColor: (() => {
-												const value = apiConfiguration?.openAiCustomModelInfo?.cacheWritesPrice
-
-												if (!value && value !== 0) {
-													return "var(--vscode-input-border)"
-												}
-
-												return value >= 0
-													? "var(--vscode-charts-green)"
-													: "var(--vscode-errorForeground)"
-											})(),
-										}}
+										className={cn("w-full", {
+											"border-vscode-input": !apiConfiguration?.openAiCustomModelInfo?.cacheWritesPrice && apiConfiguration?.openAiCustomModelInfo?.cacheWritesPrice !== 0,
+											"border-vscode-green": apiConfiguration?.openAiCustomModelInfo?.cacheWritesPrice >= 0,
+											"border-vscode-error": apiConfiguration?.openAiCustomModelInfo?.cacheWritesPrice < 0,
+										})}
 										onChange={handleInputChange("openAiCustomModelInfo", (e) => {
 											const value = (e.target as HTMLInputElement).value
 											const parsed = parseFloat(value)

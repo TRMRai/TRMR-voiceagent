@@ -159,6 +159,18 @@
 		border-color: var(--border);
 	}
 
+	.border-vscode-input {
+		border-color: var(--vscode-input-border);
+	}
+
+	.border-vscode-green {
+		border-color: var(--vscode-charts-green);
+	}
+
+	.border-vscode-error {
+		border-color: var(--vscode-errorForeground);
+	}
+
 	/* Code Block Styles */
 	pre,
 	code {
