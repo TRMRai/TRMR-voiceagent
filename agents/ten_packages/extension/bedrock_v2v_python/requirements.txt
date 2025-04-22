@@ -1,0 +1,5 @@
+boto3
+aws_sdk_bedrock_runtime
+smithy_aws_core
+python-dotenv
+asyncio

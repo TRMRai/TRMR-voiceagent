@@ -110,6 +110,10 @@ export const GRAPH_OPTIONS: GraphOptionItem[] = [
     label: "Voice Agent / STT + Nova Multimodal + TTS",
     value: "va_nova_multimodal_aws",
   },
+  {
+    label: "Voice Agent Nova Sonic Realtime",
+    value: "va_bedrock_v2v",
+  },
 ]
 
 export const isRagGraph = (graphName: string) => {

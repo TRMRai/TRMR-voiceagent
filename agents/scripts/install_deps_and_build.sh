@@ -78,7 +78,7 @@ install_python_requirements() {
 
   # pre-import llama-index as it cloud download additional resources during the first import
   echo "pre-import python modules..."
-  python3.10 -c "import llama_index.core;"
+  python3 -c "import llama_index.core;"
 }
 
 build_go_app() {
@@ -132,6 +132,10 @@ main() {
   # Install all dependencies specified in manifest.json.
   echo "install dependencies..."
   tman install
+
+  # workaround for python3.12
+  cp ${APP_HOME}/bin/libpython_addon_loader.so ${APP_HOME}/ten_packages/addon_loader/python_addon_loader/lib/
+  cp ${APP_HOME}/bin/libten_runtime_python.so ${APP_HOME}/ten_packages/system/ten_runtime_python/lib/
 
   # build extensions and app
   echo "build_cxx_extensions..."

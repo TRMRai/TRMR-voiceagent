@@ -565,7 +565,6 @@ class OpenAIRealtimeExtension(AsyncLLMBaseExtension):
             self.ctx["tools"] = tool_prompt
             tools = [tool_dict(t) for t in self.available_tools]
         prompt = self._replace(self.config.prompt)
-
         self.ten_env.log_info(f"update session {prompt} {tools}")
         su = SessionUpdate(
             session=SessionUpdateParams(
