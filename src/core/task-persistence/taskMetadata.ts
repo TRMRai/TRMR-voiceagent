@@ -35,7 +35,7 @@ export async function taskMetadata({
 		taskDirSize = await getFolderSize.loose(taskDir)
 	} catch (error) {
 		console.error(
-			`[saveTaskMessages] getFolderSize.loose failed -> ${error instanceof Error ? error.message : String(error)}`,
+			`[taskMetadata] getFolderSize.loose failed -> ${error instanceof Error ? error.message : String(error)}`,
 		)
 	}
 
