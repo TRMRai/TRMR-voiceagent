@@ -153,6 +153,8 @@ class SimpleNovaSonic:
         }}
         '''
         await self.send_event(session_start)
+
+        tools_config = json.dumps(tools_config)
         
         prompt_start = f'''
         {{
@@ -174,7 +176,7 @@ class SimpleNovaSonic:
               "toolUseOutputConfiguration": {{
                 "mediaType": "application/json"
               }}
-              {f',"toolConfiguration": {{"tools": {json.dumps(tools_config)}}}' if tools_config else ''}
+              {f',"toolConfiguration": {{"tools": {tools_config}}}' if tools_config else ''}
             }}
           }}
         }}
@@ -549,26 +551,26 @@ class BedrockV2VExtension(AsyncLLMBaseExtension):
                     "AWS credentials (access_key_id and secret_access_key) are required"
                 )
                 return
-            # self.available_tools = [
-            #     LLMToolMetadata(
-            #         name="get_past_weather",
-            #         description="Determine weather within past 7 days in user's location.",
-            #         parameters=[
-            #             LLMToolMetadataParameter(
-            #                 name="location",
-            #                 type="string",
-            #                 description="The city and state (use only English) e.g. San Francisco, CA",
-            #                 required=True,
-            #             ),
-            #             LLMToolMetadataParameter(
-            #                 name="datetime",
-            #                 type="string",
-            #                 description="The datetime user is referring in date format e.g. 2024-10-09",
-            #                 required=True,
-            #             ),
-            #         ],
-            #     )
-            # ]
+            self.available_tools = [
+                LLMToolMetadata(
+                    name="get_past_weather",
+                    description="Determine weather within past 7 days in user's location.",
+                    parameters=[
+                        LLMToolMetadataParameter(
+                            name="location",
+                            type="string",
+                            description="The city and state (use only English) e.g. San Francisco, CA",
+                            required=True,
+                        ),
+                        LLMToolMetadataParameter(
+                            name="datetime",
+                            type="string",
+                            description="The datetime user is referring in date format e.g. 2024-10-09",
+                            required=True,
+                        ),
+                    ],
+                )
+            ]
             self.ctx = self.config.build_ctx()
 
         except Exception as e:
