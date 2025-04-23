@@ -125,9 +125,12 @@ class SimpleNovaSonic:
         self.is_active = True
         
         # Configure tools if enabled
-        tools_config = []       
+        tools_config = [] 
+        prompt = self.config.prompt      
         if tools:
+            prompt = f'{prompt}\n\n You have several tools that you can get help from: '
             for tool in tools:
+                prompt += f"- ***{tool.name}***: {tool.description}"
                 tools_config.append({
                     "toolSpec": {
                         "name": tool.name,
@@ -202,9 +205,6 @@ class SimpleNovaSonic:
         }}
         '''
         await self.send_event(text_content_start)
-        prompt = self.config.prompt
-        if tools_config:
-            prompt = f'{prompt}\n\n tools: {json.dumps(tools_config)}'
 
         text_input = f'''
         {{
@@ -537,7 +537,7 @@ class BedrockV2VExtension(AsyncLLMBaseExtension):
         self.channel_name: str = ""
         self.config = BedrockV2VConfig()
         self.transcript: str = ""
-        self.available_tools: List[LLMToolMetadata] = []
+        self.loop = None
 
     async def on_init(self, ten_env: AsyncTenEnv) -> None:
         await super().on_init(ten_env)
@@ -551,26 +551,6 @@ class BedrockV2VExtension(AsyncLLMBaseExtension):
                     "AWS credentials (access_key_id and secret_access_key) are required"
                 )
                 return
-            self.available_tools = [
-                LLMToolMetadata(
-                    name="get_past_weather",
-                    description="Determine weather within past 7 days in user's location.",
-                    parameters=[
-                        LLMToolMetadataParameter(
-                            name="location",
-                            type="string",
-                            description="The city and state (use only English) e.g. San Francisco, CA",
-                            required=True,
-                        ),
-                        LLMToolMetadataParameter(
-                            name="datetime",
-                            type="string",
-                            description="The datetime user is referring in date format e.g. 2024-10-09",
-                            required=True,
-                        ),
-                    ],
-                )
-            ]
             self.ctx = self.config.build_ctx()
 
         except Exception as e:
@@ -582,10 +562,20 @@ class BedrockV2VExtension(AsyncLLMBaseExtension):
     async def on_start(self, ten_env: AsyncTenEnv) -> None:
         ten_env.log_debug("on_start")
         await super().on_start(ten_env)
-        await self.nova_client.start_session(self.available_tools)
-        self.is_active = True
-        await self.nova_client.start_audio_input()
+        self.loop = asyncio.get_event_loop()
+        self.loop.create_task(self._loop(ten_env))
 
+    async def _loop(self, ten_env: AsyncTenEnv) -> None:
+        try:
+            await asyncio.sleep(1)
+            await self.nova_client.start_session(self.available_tools)
+            self.is_active = True
+            await self.nova_client.start_audio_input()
+        except Exception as e:
+            traceback.print_exc()
+            ten_env.log_error(f"Error starting session: {e}")
+            return
+        
     async def on_stop(self, ten_env: AsyncTenEnv) -> None:
         await super().on_stop(ten_env)
         ten_env.log_info("on_stop")
@@ -680,19 +670,17 @@ class BedrockV2VExtension(AsyncLLMBaseExtension):
         self, ten_env: AsyncTenEnv, audio_frame: AudioFrame
     ) -> None:
         try:
-            #ten_env.log_info("on_audio_frame ... ")
-            
+            await super().on_audio_frame(ten_env, audio_frame)
             # Track stream_id and channel from incoming audio frames
             stream_id = audio_frame.get_property_int("stream_id")
             if self.remote_stream_id == 0:
                 self.remote_stream_id = stream_id
-                
-            channel_name = audio_frame.get_property_string("channel")
-            if not self.channel_name:
-                self.channel_name = channel_name
-            
+            if self.channel_name == "":
+                self.channel_name = audio_frame.get_property_string("channel")
+
             if self.is_active and self.nova_client:
                 # Reset the interrupted flag when new user input is detected
+
                 if self.nova_client.is_interrupted:
                     self.nova_client.is_interrupted = False
                     ten_env.log_info("Interrupt flag reset due to new user input")
