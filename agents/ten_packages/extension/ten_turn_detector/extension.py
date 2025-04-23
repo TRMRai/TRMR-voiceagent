@@ -149,12 +149,12 @@ class TENTurnDetectorExtension(AsyncExtension):
 
         self.turn_detector.cancel_eval()
 
-        # decide to complete or not
+        # decide to finished or not
         decision = await self.turn_detector.eval(self.cached_text)
-        if decision == TurnDetectorDecision.Complete:
+        if decision == TurnDetectorDecision.Finished:
             self._cancel_force_chat_task(ten_env=ten_env, recreate=False)
             await self._process_new_turn(
-                ten_env=ten_env, decision=TurnDetectorDecision.Complete
+                ten_env=ten_env, decision=TurnDetectorDecision.Finished
             )
         elif decision == TurnDetectorDecision.Wait:
             self._cancel_force_chat_task(ten_env=ten_env, recreate=False)
@@ -172,7 +172,7 @@ class TENTurnDetectorExtension(AsyncExtension):
 
         ten_env.log_info(f"force chat to process new turn")
         await self._process_new_turn(
-            ten_env=ten_env, decision=TurnDetectorDecision.Complete
+            ten_env=ten_env, decision=TurnDetectorDecision.Finished
         )
         self.eval_force_chat_task = None  # finished
 

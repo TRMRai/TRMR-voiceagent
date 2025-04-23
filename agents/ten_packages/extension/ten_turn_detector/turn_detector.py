@@ -12,14 +12,14 @@ from enum import Enum
 
 
 class SpecialToken(str, Enum):
-    Incomplete = "incomplete"
-    Complete = "complete"
+    Unfinished = "unfinished"
+    Finished = "finished"
     Wait = "wait"
 
 
 class TurnDetectorDecision(str, Enum):
-    Incomplete = "incomplete"
-    Complete = "complete"
+    Unfinished = "unfinished"
+    Finished = "finished"
     Wait = "wait"
 
 
@@ -90,7 +90,7 @@ class TurnDetector:
         self.chat_task = task
         self.ten_env.log_debug(f"eval task {task.get_name()} messages: {messages}")
 
-        decision = TurnDetectorDecision.Incomplete  # default to listen
+        decision = TurnDetectorDecision.Unfinished  # default to listen
         try:
             content = await asyncio.wait_for(task, timeout=5.0)
 
@@ -106,13 +106,13 @@ class TurnDetector:
             )
 
             # output decision
-            if content.startswith(SpecialToken.Incomplete):
+            if content.startswith(SpecialToken.Unfinished):
                 pass
             elif content.startswith(SpecialToken.Wait):
                 decision = TurnDetectorDecision.Wait
             else:
                 # decided to chat
-                decision = TurnDetectorDecision.Complete
+                decision = TurnDetectorDecision.Finished
 
             self.ten_env.log_debug(
                 f"eval task {task.get_name()} decision made: {decision}"
@@ -143,7 +143,7 @@ class TurnDetector:
             chat_completion = await self.client_session.chat.completions.create(
                 messages=messages,
                 model=self.config.model,
-                max_tokens=2,
+                max_tokens=1,
                 temperature=self.config.temperature,
                 top_p=self.config.top_p,
             )
