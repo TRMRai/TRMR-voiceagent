@@ -1,0 +1,15 @@
+{
+    "region": "us-east-1",
+    "access_key_id": "${env:AWS_ACCESS_KEY_ID}",
+    "secret_access_key": "${env:AWS_SECRET_ACCESS_KEY}",
+    "model": "amazon.nova-sonic-v1:0",
+    "temperature": 0.7,
+    "max_tokens": 512,
+    "topP": 0.5,
+    "topK": 20,
+    "prompt": "Now you are an intelligent assistant with real-time interaction capabilities. I will provide you with a series of real-time video image information. Please understand these images as video frames. Based on the images and the user's input, engage in a conversation with the user, remembering the dialogue content in a concise and clear manner.",
+    "sample_size_bits": 16,
+    "channels": 1,
+    "sample_rate": 16000,
+    "voice_id": "matthew"
+}

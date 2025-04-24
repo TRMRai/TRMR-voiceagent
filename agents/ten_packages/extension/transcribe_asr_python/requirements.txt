@@ -1,1 +1,3 @@
-amazon-transcribe==0.6.2
+#amazon-transcribe==0.6.2
+# amazon-transcribe-streaming-sdk
+git+https://github.com/zhuermu/amazon-transcribe-streaming-sdk.git

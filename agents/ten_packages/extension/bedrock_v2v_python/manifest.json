@@ -1,0 +1,235 @@
+{
+  "type": "extension",
+  "name": "bedrock_v2v_python",
+  "version": "0.1.0",
+  "dependencies": [
+    {
+      "type": "system",
+      "name": "ten_runtime_python",
+      "version": "0.8"
+    },
+    {
+      "type": "system",
+      "name": "ten_ai_base",
+      "version": "0.4.1"
+    }
+  ],
+  "package": {
+    "include": [
+      "manifest.json",
+      "property.json",
+      "**.tent",
+      "**.py",
+      "README.md",
+      "tests/**"
+    ]
+  },
+  "api": {
+    "property": {
+      "model": {
+        "type": "string"
+      },
+      "region": {
+        "type": "string"
+      },
+      "voice_id": {
+        "type": "string"
+      },
+      "input_sample_rate": {
+        "type": "int32"
+      },
+      "output_sample_rate": {
+        "type": "int32"
+      },
+      "sample_rate": {
+        "type": "int32"
+      },
+      "channels": {
+        "type": "int32"
+      },
+      "sample_size_bits": {
+        "type": "int32"
+      },
+      "max_tokens": {
+        "type": "int32"
+      },
+      "topP": {
+        "type": "float32"
+      },
+      "topK": {
+        "type": "int32"
+      },
+      "temperature": {
+        "type": "float32"
+      },
+      "prompt": {
+        "type": "string"
+      },
+      "greeting": {
+        "type": "string"
+      },
+      "enable_audio_input": {
+        "type": "bool"
+      },
+      "enable_video_input": {
+        "type": "bool"
+      },
+      "enable_text_output": {
+        "type": "bool"
+      },
+      "enable_audio_output": {
+        "type": "bool"
+      },
+      "access_key_id": {
+        "type": "string"
+      },
+      "secret_access_key": {
+        "type": "string"
+      }
+    },
+    "audio_frame_in": [
+      {
+        "name": "pcm_frame",
+        "property": {
+          "stream_id": {
+            "type": "int64"
+          }
+        }
+      }
+    ],
+    "video_frame_in": [
+      {
+        "name": "video_frame",
+        "property": {
+          "stream_id": {
+            "type": "int64"
+          }
+        }
+      }
+    ],
+    "data_out": [
+      {
+        "name": "text_data",
+        "property": {
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "append",
+        "property": {
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    ],
+    "cmd_in": [
+      {
+        "name": "on_user_joined",
+        "property": {
+          "uid": {
+            "type": "int64"
+          }
+        },
+        "result": {
+          "property": {
+            "response": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "on_user_left",
+        "property": {
+          "uid": {
+            "type": "int64"
+          }
+        },
+        "result": {
+          "property": {
+            "response": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "on_connection_failure",
+        "property": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "result": {
+          "property": {
+            "response": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "tool_register",
+        "property": {
+          "tool": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "parameters": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "parameters"
+            ]
+          }
+        },
+        "result": {
+          "property": {
+            "response": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    ],
+    "cmd_out": [
+      {
+        "name": "flush"
+      },
+      {
+        "name": "tool_call",
+        "property": {
+          "name": {
+            "type": "string"
+          },
+          "args": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    ],
+    "audio_frame_out": [
+      {
+        "name": "pcm_frame"
+      }
+    ]
+  }
+}

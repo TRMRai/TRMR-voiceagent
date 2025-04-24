@@ -167,6 +167,11 @@
       "type": "extension",
       "name": "dubverse_tts",
       "version": "=0.1.0"
+    },
+    {
+      "type": "extension",
+      "name": "bedrock_v2v_python",
+      "version": "=0.1.0"
     }
   ]
 }
