@@ -18,6 +18,7 @@ from .ten_aivad import tenAiVad
 from enum import Enum, auto
 
 import numpy as np
+import os
 
 BYTES_PER_SAMPLE = 2
 SAMPLE_RATE = 16000
@@ -45,6 +46,10 @@ class TENVADPythonExtension(AsyncExtension):
         self.prefix_window_size: int = 0
         self.silence_window_size: int = 0
 
+        # Audio buffer for speaking only mode
+        self.prefix_buffer: bytearray = bytearray()
+        self.prefix_buffer_size: int = 0  # maximum size in bytes
+
     async def on_init(self, ten_env: AsyncTenEnv) -> None:
         config_json = await ten_env.get_property_to_json("")
         self.config = TENVADConfig.model_validate_json(config_json)
@@ -58,8 +63,13 @@ class TENVADPythonExtension(AsyncExtension):
         self.prefix_window = self.config.prefix_padding_ms // self.config.hop_size_ms
         self.window_size = max(self.silence_window, self.prefix_window)
         ten_env.log_debug(
-            f"window_size: {self.window_size}, prefix_window_size: {self.prefix_window}, silence_window_size: {self.silence_window}"
+            f"window_size: {self.window_size}, prefix_window_size: {self.prefix_window_size}, silence_window_size: {self.silence_window_size}"
         )
+
+        # Calculate prefix buffer size in bytes
+        samples_in_prefix = (self.config.prefix_padding_ms * SAMPLE_RATE) // 1000
+        self.prefix_buffer_size = samples_in_prefix * BYTES_PER_SAMPLE
+        ten_env.log_debug(f"prefix_buffer_size: {self.prefix_buffer_size} bytes")
 
     async def on_start(self, ten_env: AsyncTenEnv) -> None:
 
@@ -102,6 +112,24 @@ class TENVADPythonExtension(AsyncExtension):
                 ten_env.log_debug("send_cmd: start_of_speaking")
                 await ten_env.send_cmd(Cmd.create("start_of_speaking"))
 
+                # In speaking only mode, output buffered audio
+                if self.config.output_speaking_only and self.prefix_buffer:
+                    # Create a new audio frame with the buffered data
+                    audio_frame = AudioFrame.create("pcm_frame")
+                    audio_frame.set_bytes_per_sample(BYTES_PER_SAMPLE)
+                    audio_frame.set_sample_rate(SAMPLE_RATE)
+                    audio_frame.set_number_of_channels(1)
+                    audio_frame.set_data_fmt(AudioFrameDataFmt.INTERLEAVE)
+                    audio_frame.set_samples_per_channel(
+                        len(self.prefix_buffer) // BYTES_PER_SAMPLE
+                    )
+                    audio_frame.alloc_buf(len(self.prefix_buffer))
+                    buf = audio_frame.lock_buf()
+                    buf[:] = self.prefix_buffer
+                    audio_frame.unlock_buf(buf)
+                    await ten_env.send_audio_frame(audio_frame)
+                    self.prefix_buffer.clear()
+
         elif self.state == VADState.SPEAKING:
             # Check if we should transition to IDLE
             silence_probes = self.probe_window[-self.silence_window_size :]
@@ -123,6 +151,24 @@ class TENVADPythonExtension(AsyncExtension):
         frame_buf = audio_frame.get_buf()
         self._dump_audio_if_needed(frame_buf, "in")
 
+        # Handle audio frame based on mode
+        if not self.config.output_speaking_only:
+            # Direct passthrough mode
+            await ten_env.send_audio_frame(audio_frame)
+        else:
+            # Speaking only mode
+            if self.state == VADState.SPEAKING:
+                # In speaking state, directly output the frame
+                await ten_env.send_audio_frame(audio_frame)
+            else:
+                # In idle state, buffer the audio data for potential prefix
+                self.prefix_buffer.extend(frame_buf)
+                if len(self.prefix_buffer) > self.prefix_buffer_size:
+                    # Remove oldest data to maintain buffer size
+                    excess = len(self.prefix_buffer) - self.prefix_buffer_size
+                    self.prefix_buffer = self.prefix_buffer[excess:]
+
+        # Process audio for VAD
         self.audio_buffer.extend(frame_buf)
         if len(self.audio_buffer) < self.hop_size * BYTES_PER_SAMPLE:
             return

@@ -8,3 +8,4 @@ class TENVADConfig(BaseModel):
     hop_size_ms: int = 10
     dump: bool = False
     dump_path: str = ""
+    output_speaking_only: bool = False
