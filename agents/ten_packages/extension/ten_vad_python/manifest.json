@@ -17,7 +17,21 @@
       "README.md"
     ]
   },
-  "api": {},
+  "api": {
+    "audio_frame_in": [
+      {
+        "name": "pcm_frame"
+      }
+    ],
+    "cmd_out": [
+      {
+        "name": "start_of_speech"
+      },
+      {
+        "name": "end_of_speech"
+      }
+    ]
+  },
   "scripts": {
     "test": "tests/bin/start"
   }

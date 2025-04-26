@@ -83,7 +83,7 @@ class TENVADPythonExtension(AsyncExtension):
     async def on_data(self, ten_env: AsyncTenEnv, data: Data) -> None:
         pass
 
-    def _check_state_transition(self, ten_env: AsyncTenEnv) -> None:
+    async def _check_state_transition(self, ten_env: AsyncTenEnv) -> None:
         if len(self.probe_window) != self.window_size:
             return
 
@@ -95,9 +95,12 @@ class TENVADPythonExtension(AsyncExtension):
             )
             if all_above_threshold:
                 self.state = VADState.SPEECHING
-                ten_env.log_debug(
-                    f"State transition: IDLE -> SPEECHING (probes: {prefix_probes})"
-                )
+                ten_env.log_debug(f"State transition: IDLE -> SPEECHING")
+                ten_env.log_debug(f"(probes: {prefix_probes})")
+
+                # send start_of_speech cmd
+                ten_env.log_debug("send_cmd: start_of_speech")
+                await ten_env.send_cmd(Cmd.create("start_of_speech"))
 
         elif self.state == VADState.SPEECHING:
             # Check if we should transition to IDLE
@@ -107,9 +110,12 @@ class TENVADPythonExtension(AsyncExtension):
             )
             if all_below_threshold:
                 self.state = VADState.IDLE
-                ten_env.log_debug(
-                    f"State transition: SPEECHING -> IDLE (probes: {silence_probes})"
-                )
+                ten_env.log_debug(f"State transition: SPEECHING -> IDLE")
+                ten_env.log_debug(f"(probes: {silence_probes})")
+
+                # send end_of_speech cmd
+                ten_env.log_debug("send_cmd: end_of_speech")
+                await ten_env.send_cmd(Cmd.create("end_of_speech"))
 
     async def on_audio_frame(
         self, ten_env: AsyncTenEnv, audio_frame: AudioFrame
@@ -134,7 +140,7 @@ class TENVADPythonExtension(AsyncExtension):
             self.probe_window.pop(0)
 
         # Check state transition
-        self._check_state_transition(ten_env)
+        await self._check_state_transition(ten_env)
 
     def _dump_audio_if_needed(self, buf: bytearray, suffix: str) -> None:
         if not self.config.dump:

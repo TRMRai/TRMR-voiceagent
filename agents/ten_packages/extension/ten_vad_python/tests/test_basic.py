@@ -25,6 +25,8 @@ class ExtensionTesterBasic(AsyncExtensionTester):
         super().__init__()
         self.input_pcm_file = input_pcm_file
 
+        self.next_expect_cmd: str = "start_of_speech"
+
     async def on_start(self, ten_env: AsyncTenEnvTester) -> None:
         assert os.path.isfile(
             self.input_pcm_file
@@ -63,6 +65,21 @@ class ExtensionTesterBasic(AsyncExtensionTester):
         await asyncio.sleep(2)  # wait for done
         ten_env.stop_test()
 
+    async def on_cmd(self, ten_env: AsyncTenEnvTester, cmd: Cmd) -> None:
+        cmd_name = cmd.get_name()
+        ten_env.log_debug("on_cmd name {}".format(cmd_name))
+
+        if cmd_name in ["start_of_speech", "end_of_speech"]:
+            if cmd_name == self.next_expect_cmd:
+                ten_env.log_debug(f"{self.next_expect_cmd} cmd received")
+                self.next_expect_cmd = (
+                    "end_of_speech"
+                    if self.next_expect_cmd == "start_of_speech"
+                    else "start_of_speech"
+                )
+            else:
+                assert False, f"{self.next_expect_cmd} cmd not received"
+
 
 def test_basic():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -74,7 +91,7 @@ def test_basic():
 
     property_json = {
         "prefix_padding_ms": 200,
-        "silence_duration_ms": 1000,
+        "silence_duration_ms": 500,
         "vad_threshold": 0.5,
         "hop_size_ms": 20,
         "dump": False,
