@@ -5,50 +5,82 @@
 # Refer to the "LICENSE" file in the root directory for more information.
 #
 from typing import Optional
+import os
+import aiofiles
+import asyncio
+import json
 from ten import (
-    ExtensionTester,
-    TenEnvTester,
+    AsyncExtensionTester,
+    AsyncTenEnvTester,
     Cmd,
     CmdResult,
     StatusCode,
-    TenError,
+    AudioFrame,
+    AudioFrameDataFmt,
 )
 
 
-class ExtensionTesterBasic(ExtensionTester):
-    def check_hello(
-        self,
-        ten_env: TenEnvTester,
-        result: Optional[CmdResult],
-        error: Optional[TenError],
-    ):
-        if error is not None:
-            assert False, error.error_message()
+class ExtensionTesterBasic(AsyncExtensionTester):
+    def __init__(self, input_pcm_file: str):
+        super().__init__()
+        self.input_pcm_file = input_pcm_file
 
-        assert result is not None
+    async def on_start(self, ten_env: AsyncTenEnvTester) -> None:
+        assert os.path.isfile(
+            self.input_pcm_file
+        ), f"{self.input_pcm_file} is not a valid file"
 
-        statusCode = result.get_status_code()
-        ten_env.log_debug(f"receive hello_world, status: {statusCode}")
+        # await asyncio.sleep(2)  # before start
 
-        if statusCode == StatusCode.OK:
-            ten_env.stop_test()
+        ten_env.log_debug(f"start reading audio file {self.input_pcm_file}")
 
-    def on_start(self, ten_env: TenEnvTester) -> None:
-        new_cmd = Cmd.create("hello_world")
+        chunk_size = 160 * 2  # 10ms
+        async with aiofiles.open(self.input_pcm_file, "rb") as audio_file:
+            while True:
+                chunk = await audio_file.read(chunk_size)
+                if not chunk:
+                    ten_env.log_debug(
+                        f"audio file {self.input_pcm_file} end at {audio_file.tell()}"
+                    )
+                    break
 
-        ten_env.log_debug("send hello_world")
-        ten_env.send_cmd(
-            new_cmd,
-            lambda ten_env, result, error: self.check_hello(
-                ten_env, result, error
-            ),
-        )
+                # ten_env.log_debug(f"read {len(chunk)} bytes from {self.input_pcm_file}")
 
-        ten_env.log_debug("tester on_start_done")
-        ten_env.on_start_done()
+                audio_frame = AudioFrame.create("pcm_frame")
+                audio_frame.set_bytes_per_sample(2)
+                audio_frame.set_sample_rate(16000)
+                audio_frame.set_number_of_channels(1)
+                audio_frame.set_data_fmt(AudioFrameDataFmt.INTERLEAVE)
+                audio_frame.set_samples_per_channel(len(chunk) // 2)
+                audio_frame.alloc_buf(len(chunk))
+                buf = audio_frame.lock_buf()
+                buf[:] = chunk
+                audio_frame.unlock_buf(buf)
+                await ten_env.send_audio_frame(audio_frame)
+
+                await asyncio.sleep(0.01)
+
+        await asyncio.sleep(2)  # wait for done
+        ten_env.stop_test()
 
 
 def test_basic():
-    tester = ExtensionTesterBasic()
-    tester.set_test_mode_single("ten_vad_python")
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    test_file = os.path.join(cur_dir, "16k_en_US.pcm")
+
+    if not os.path.isfile(test_file):
+        print(f"test file {test_file} not found, skip the test")
+        return
+
+    property_json = {
+        "prefix_padding_ms": 200,
+        "silence_duration_ms": 1000,
+        "vad_threshold": 0.5,
+        "hop_size": 160,
+        "dump": False,
+        "dump_path": "",
+    }
+
+    tester = ExtensionTesterBasic(test_file)
+    tester.set_test_mode_single("ten_vad_python", json.dumps(property_json))
     tester.run()
