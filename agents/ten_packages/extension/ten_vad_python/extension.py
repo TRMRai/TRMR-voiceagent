@@ -25,7 +25,7 @@ SAMPLE_RATE = 16000
 
 class VADState(Enum):
     IDLE = auto()
-    SPEECHING = auto()
+    SPEAKING = auto()
 
 
 class TENVADPythonExtension(AsyncExtension):
@@ -88,21 +88,21 @@ class TENVADPythonExtension(AsyncExtension):
             return
 
         if self.state == VADState.IDLE:
-            # Check if we should transition to SPEECHING
+            # Check if we should transition to SPEAKING
             prefix_probes = self.probe_window[-self.prefix_window_size :]
             all_above_threshold = all(
                 p >= self.config.vad_threshold for p in prefix_probes
             )
             if all_above_threshold:
-                self.state = VADState.SPEECHING
-                ten_env.log_debug(f"State transition: IDLE -> SPEECHING")
+                self.state = VADState.SPEAKING
+                ten_env.log_debug(f"State transition: IDLE -> SPEAKING")
                 ten_env.log_debug(f"(probes: {prefix_probes})")
 
-                # send start_of_speech cmd
-                ten_env.log_debug("send_cmd: start_of_speech")
-                await ten_env.send_cmd(Cmd.create("start_of_speech"))
+                # send start_of_speaking cmd
+                ten_env.log_debug("send_cmd: start_of_speaking")
+                await ten_env.send_cmd(Cmd.create("start_of_speaking"))
 
-        elif self.state == VADState.SPEECHING:
+        elif self.state == VADState.SPEAKING:
             # Check if we should transition to IDLE
             silence_probes = self.probe_window[-self.silence_window_size :]
             all_below_threshold = all(
@@ -110,12 +110,12 @@ class TENVADPythonExtension(AsyncExtension):
             )
             if all_below_threshold:
                 self.state = VADState.IDLE
-                ten_env.log_debug(f"State transition: SPEECHING -> IDLE")
+                ten_env.log_debug(f"State transition: SPEAKING -> IDLE")
                 ten_env.log_debug(f"(probes: {silence_probes})")
 
-                # send end_of_speech cmd
-                ten_env.log_debug("send_cmd: end_of_speech")
-                await ten_env.send_cmd(Cmd.create("end_of_speech"))
+                # send end_of_speaking cmd
+                ten_env.log_debug("send_cmd: end_of_speaking")
+                await ten_env.send_cmd(Cmd.create("end_of_speaking"))
 
     async def on_audio_frame(
         self, ten_env: AsyncTenEnv, audio_frame: AudioFrame

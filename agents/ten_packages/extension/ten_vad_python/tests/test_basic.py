@@ -25,7 +25,7 @@ class ExtensionTesterBasic(AsyncExtensionTester):
         super().__init__()
         self.input_pcm_file = input_pcm_file
 
-        self.next_expect_cmd: str = "start_of_speech"
+        self.next_expect_cmd: str = "start_of_speaking"
 
     async def on_start(self, ten_env: AsyncTenEnvTester) -> None:
         assert os.path.isfile(
@@ -69,13 +69,13 @@ class ExtensionTesterBasic(AsyncExtensionTester):
         cmd_name = cmd.get_name()
         ten_env.log_debug("on_cmd name {}".format(cmd_name))
 
-        if cmd_name in ["start_of_speech", "end_of_speech"]:
+        if cmd_name in ["start_of_speaking", "end_of_speaking"]:
             if cmd_name == self.next_expect_cmd:
                 ten_env.log_debug(f"{self.next_expect_cmd} cmd received")
                 self.next_expect_cmd = (
-                    "end_of_speech"
-                    if self.next_expect_cmd == "start_of_speech"
-                    else "start_of_speech"
+                    "end_of_speaking"
+                    if self.next_expect_cmd == "start_of_speaking"
+                    else "start_of_speaking"
                 )
             else:
                 assert False, f"{self.next_expect_cmd} cmd not received"

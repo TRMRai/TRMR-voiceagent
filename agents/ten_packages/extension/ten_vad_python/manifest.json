@@ -25,10 +25,10 @@
     ],
     "cmd_out": [
       {
-        "name": "start_of_speech"
+        "name": "start_of_speaking"
       },
       {
-        "name": "end_of_speech"
+        "name": "end_of_speaking"
       }
     ]
   },
