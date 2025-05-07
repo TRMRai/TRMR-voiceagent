@@ -168,5 +168,8 @@
       "name": "dubverse_tts",
       "version": "=0.1.0"
     }
-  ]
+  ],
+  "scripts": {
+    "start": "bin/start"
+  }
 }
