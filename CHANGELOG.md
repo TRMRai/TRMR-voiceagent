@@ -1,8 +1,9 @@
 # Roo Code Changelog
 
-## [3.16.2]
+## [3.16.2] - 2025-05-07
 
--   - Clarify XML tool use formatting instructions
+- Clarify XML tool use formatting instructions
+- Error handling code cleanup (thanks @monkeyDluffy6017!)
 
 ## [3.16.1] - 2025-05-07
 
