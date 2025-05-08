@@ -1,5 +1,11 @@
 # Roo Code Changelog
 
+## 3.16.2
+
+### Patch Changes
+
+-   - Clarify XML tool use formatting instructions
+
 ## [3.16.1] - 2025-05-07
 
 - Add LiteLLM provider support
