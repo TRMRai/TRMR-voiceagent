@@ -1,6 +1,7 @@
 <div align="center"> <a name="readme-top"></a>
 
-![TEN Agent banner](https://github.com/user-attachments/assets/72c70d91-3db6-41d6-8ce0-8a2064564fb8)
+![Profile Banner (1)](https://github.com/user-attachments/assets/345bc973-4ab6-43d4-a29c-9b9d4151b3da)
+
 
 ![]( https://img.shields.io/github/v/release/ten-framework/ten-framework?color=369eff&labelColor=gray&logo=github&style=flat-square )
 ![](https://img.shields.io/github/release-date/ten-framework/ten-framework?labelColor=gray&style=flat-square)
