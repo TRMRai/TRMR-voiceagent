@@ -9,6 +9,7 @@ import {
 } from "agora-rtc-react";
 import { BotMessageSquareIcon } from "lucide-react";
 import { useAppStore } from "@/store";
+import Avatar from "@/components/Agent/AvatarTrulience";
 
 export default function AgentView() {
   const remoteUsers = useRemoteUsers();
@@ -22,7 +23,7 @@ export default function AgentView() {
       )}
     >
       {
-        preferences?.trulience?.enabled ? (
+        !preferences?.trulience?.enabled ? (
           <>
             <div className="text-lg font-semibold text-primary absolute top-4">
               <BotMessageSquareIcon size={48} />
@@ -43,7 +44,14 @@ export default function AgentView() {
               )}
             </div>
           </>
-        ) : null
+        ) : (
+          <div className="h-64 w-full flex items-center justify-center">
+            <Avatar audioTrack={track} />
+            {track && (
+              <RemoteAudioTrack key={track.getUserId()} play track={track} />
+            )}
+          </div>
+        )
       }
 
     </div>

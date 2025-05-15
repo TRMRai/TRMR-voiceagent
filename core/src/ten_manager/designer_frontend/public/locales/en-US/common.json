@@ -273,7 +273,7 @@
     "enabled": "Enabled",
     "trulienceAvatarId": "Trulience Avatar ID",
     "trulienceAvatarToken": "Trulience Avatar Token",
-    "trulienceSdkURL": "Trulience SDK URL",
+    "trulienceSdkUrl": "Trulience SDK URL",
     "trulienceAnimationURL": "Trulience Animation URL"
   },
   "statusBar": {

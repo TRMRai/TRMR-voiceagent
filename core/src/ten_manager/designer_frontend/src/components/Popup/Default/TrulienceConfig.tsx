@@ -40,9 +40,9 @@ export const TrulienceConfigWidgetContent = (_props: { widget: IWidget }) => {
         label: t("trulienceConfig.trulienceAvatarToken")
       })
     )],
-    ["trulienceSdkURL", z.string().optional().superRefine(
+    ["trulienceSdkUrl", z.string().optional().superRefine(
       fieldConfig({
-        label: t("trulienceConfig.trulienceSdkURL")
+        label: t("trulienceConfig.trulienceSdkUrl")
       })
     )],
     ["trulienceAnimationURL", z.string().optional().superRefine(
@@ -67,7 +67,7 @@ export const TrulienceConfigWidgetContent = (_props: { widget: IWidget }) => {
             enabled: false,
             trulienceAvatarId: undefined,
             trulienceAvatarToken: undefined,
-            trulienceSdkURL: "https://trulience.com/sdk/trulience.sdk.js",
+            trulienceSdkUrl: "https://trulience.com/sdk/trulience.sdk.js",
             trulienceAnimationURL: "https://trulience.com",
           }}
           values = {{

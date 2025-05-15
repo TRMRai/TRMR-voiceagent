@@ -1,21 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAppSelector } from "@/common";
 import { TrulienceAvatar } from "trulience-sdk";
-import { IMicrophoneAudioTrack } from "agora-rtc-react";
+import { IRemoteAudioTrack } from "agora-rtc-react";
 import { Maximize, Minimize } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Progress, ProgressIndicator } from "../ui/progress";
+import { Progress, ProgressIndicator } from "@/components/ui/progress";
+import { useAppStore } from "@/store";
 
 interface AvatarProps {
-  audioTrack?: IMicrophoneAudioTrack,
-  localAudioTrack?: IMicrophoneAudioTrack
+  audioTrack?: IRemoteAudioTrack | null;
 }
 
 export default function Avatar({ audioTrack }: AvatarProps) {
-  const agentConnected = useAppSelector((state) => state.global.agentConnected);
-  const trulienceSettings = useAppSelector((state) => state.global.trulienceSettings);
+  const { preferences } = useAppStore();
+  const trulienceSettings = preferences.trulience;
   const trulienceAvatarRef = useRef<TrulienceAvatar>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -34,10 +33,10 @@ export default function Avatar({ audioTrack }: AvatarProps) {
       const urlParams = new URLSearchParams(window.location.search);
       const avatarIdFromURL = urlParams.get("avatarId");
       setFinalAvatarId(
-        avatarIdFromURL || trulienceSettings.avatarId || ""
+        avatarIdFromURL || trulienceSettings.trulienceAvatarId || ""
       );
     }
-  }, []);
+  }, [trulienceSettings.trulienceAvatarId]);
 
   // Define event callbacks
   const eventCallbacks = useMemo(() => {
@@ -45,14 +44,14 @@ export default function Avatar({ audioTrack }: AvatarProps) {
       "auth-success": (resp: string) => {
         console.log("Trulience Avatar auth-success:", resp);
       },
-      "auth-fail": (resp: any) => {
+      "auth-fail": (resp: {message:string}) => {
         console.log("Trulience Avatar auth-fail:", resp);
         setErrorMessage(resp.message);
       },
       "websocket-connect": (resp: string) => {
         console.log("Trulience Avatar websocket-connect:", resp);
       },
-      "load-progress": (details: Record<string, any>) => {
+      "load-progress": (details: {progress:number}) => {
         console.log("Trulience Avatar load-progress:", details.progress);
         setLoadProgress(details.progress);
       },
@@ -64,42 +63,40 @@ export default function Avatar({ audioTrack }: AvatarProps) {
     if (!finalAvatarId) return null;
     return (
       <TrulienceAvatar
-        url={trulienceSettings.trulienceSDK}
+        url={trulienceSettings.trulienceSdkUrl}
         ref={trulienceAvatarRef}
         avatarId={finalAvatarId}
-        token={trulienceSettings.avatarToken}
+        token={trulienceSettings.trulienceAvatarToken}
         eventCallbacks={eventCallbacks}
         width="100%"
         height="100%"
       />
     );
-  }, [finalAvatarId, eventCallbacks]);
+  }, [
+    finalAvatarId,
+    trulienceSettings.trulienceSdkUrl,
+    trulienceSettings.trulienceAvatarToken,
+    eventCallbacks
+  ]);
 
   // Update the Avatar’s audio stream whenever audioTrack 
   // or agentConnected changes
   useEffect(() => {
-    if (trulienceAvatarRef.current) {
-      if (audioTrack && agentConnected) {
+    const avatarRefCurrent = trulienceAvatarRef.current;
+    if (avatarRefCurrent) {
+      if (audioTrack) {
         const stream = new MediaStream([audioTrack.getMediaStreamTrack()]);
-        trulienceAvatarRef.current.setMediaStream(null);
-        trulienceAvatarRef.current.setMediaStream(stream);
+        avatarRefCurrent.setMediaStream(null);
+        avatarRefCurrent.setMediaStream(stream);
         console.warn("[TrulienceAvatar] MediaStream set:", stream);
-      } else if (!agentConnected) {
-        const trulienceObj = trulienceAvatarRef.current.getTrulienceObject();
-        trulienceObj?.sendMessageToAvatar(
-          "<trl-stop-background-audio immediate='true' />"
-        );
-        trulienceObj?.sendMessageToAvatar(
-          "<trl-content position='DefaultCenter' />"
-        );
       }
     }
 
     // Cleanup: unset media stream
     return () => {
-      trulienceAvatarRef.current?.setMediaStream(null);
+      avatarRefCurrent?.setMediaStream(null);
     };
-  }, [audioTrack, agentConnected]);
+  }, [audioTrack]);
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden rounded-lg", {
