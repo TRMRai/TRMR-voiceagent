@@ -51,6 +51,7 @@
       "title": "Extensions",
       "openExtensionStore": "Open Extension Store",
       "startRTCInteraction": "Start RTC Interaction",
+      "configTrulienceAvatar": "Configure Trulience Avatar",
       "about": "About Extensions"
     },
     "language": {
@@ -266,6 +267,14 @@
   },
   "rtcInteraction": {
     "title": "RTC Interaction"
+  },
+  "trulienceConfig": {
+    "title": "Trulience Avatar Configuration",
+    "enabled": "Enabled",
+    "trulienceAvatarId": "Trulience Avatar ID",
+    "trulienceAvatarToken": "Trulience Avatar Token",
+    "trulienceSdkURL": "Trulience SDK URL",
+    "trulienceAnimationURL": "Trulience Animation URL"
   },
   "statusBar": {
     "appsLoadedWithCount": "{{count}} app(s) loaded",

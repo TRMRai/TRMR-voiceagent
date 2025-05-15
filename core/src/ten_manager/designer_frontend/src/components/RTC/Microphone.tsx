@@ -5,7 +5,6 @@ import AudioVisualizer from "@/components/Agent/AudioVisualizer";
 import { Button } from "@/components/ui/Button";
 import AgoraRTC, { IMicrophoneAudioTrack } from "agora-rtc-react";
 import { MicIcon, MicOffIcon } from "lucide-react";
-import { useMultibandTrackVolume } from "@/hooks/use-audio-visualizer";
 import { DEFAULT_DEVICE_ITEM, TDeviceSelectItem } from "@/types/rtc";
 import { DeviceSelect } from "@/components/RTC/Device";
 
@@ -50,7 +49,6 @@ export function MicrophoneDeviceWrapper(props: {
     children,
     audioTrack
   } = props;
-  const subscribedVolumes = useMultibandTrackVolume(audioTrack, 10);
 
   return (
     <div className="flex flex-col">
@@ -68,7 +66,8 @@ export function MicrophoneDeviceWrapper(props: {
               barWidth={2}
               minBarHeight={2}
               maxBarHeight={20}
-              frequencies={subscribedVolumes}
+              track={audioTrack}
+              bands={10}
               borderRadius={2}
               gap={4}
             />

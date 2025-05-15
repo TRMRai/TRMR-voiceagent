@@ -51,6 +51,7 @@
       "title": "擴充功能",
       "openExtensionStore": "開啟擴充功能商店",
       "startRTCInteraction": "開始 RTC 互動",
+      "configTrulienceAvatar": "配置 Trulience 虛擬人",
       "about": "關於擴充功能"
     },
     "language": {
@@ -266,6 +267,14 @@
   },
   "rtcInteraction": {
     "title": "RTC 互動"
+  },
+  "trulienceConfig": {
+    "title": "Trulience 虛擬人配置",
+    "enabled": "啟用",
+    "trulienceAvatarId": "Trulience Avatar ID",
+    "trulienceAvatarToken": "Trulience Avatar Token",
+    "trulienceSdkURL": "Trulience SDK URL",
+    "trulienceAnimationURL": "Trulience Animation URL"
   },
   "statusBar": {
     "appsLoadedWithCount": "已載入 {{count}} 個應用程式",

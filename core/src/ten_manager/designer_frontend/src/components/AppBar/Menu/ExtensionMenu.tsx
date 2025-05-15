@@ -5,7 +5,7 @@
 // Refer to the "LICENSE" file in the root directory for more information.
 //
 import { useTranslation } from "react-i18next";
-import { BlocksIcon, InfoIcon, PodcastIcon } from "lucide-react";
+import { BlocksIcon, InfoIcon, PodcastIcon, ScanFaceIcon } from "lucide-react";
 
 import {
   NavigationMenuContent,
@@ -28,6 +28,7 @@ import {
   DOC_REF_WIDGET_ID,
   GROUP_DOC_REF_ID,
   RTC_INTERACTION_WIDGET_ID,
+  TRULIENCE_CONFIG_WIDGET_ID,
 } from "@/constants/widgets";
 import { EDocLinkKey } from "@/types/doc";
 import { ExtensionStorePopupTitle } from "@/components/Popup/Default/Extension";
@@ -36,6 +37,11 @@ import { DocRefPopupTitle } from "@/components/Popup/Default/DocRef";
 export const RTCInteractionPopupTitle = () => {
   const { t } = useTranslation();
   return t("rtcInteraction.title");
+};
+
+export const TrulienceConfigPopupTitle = () => {
+  const { t } = useTranslation();
+  return t("trulienceConfig.title");
 };
 
 export const ExtensionMenu = (props: {
@@ -84,6 +90,28 @@ export const ExtensionMenu = (props: {
       },
       popup: {
         width: 450,
+        height: 520,
+        initialPosition: "top-left",
+      },
+    });
+  };
+
+
+  const onConfigTrulience = () => {
+    appendWidget({
+      container_id: CONTAINER_DEFAULT_ID,
+      group_id: TRULIENCE_CONFIG_WIDGET_ID,
+      widget_id: TRULIENCE_CONFIG_WIDGET_ID,
+
+      category: EWidgetCategory.Default,
+      display_type: EWidgetDisplayType.Popup,
+
+      title: <TrulienceConfigPopupTitle />,
+      metadata: {
+        type: EDefaultWidgetType.TrulienceConfig,
+      },
+      popup: {
+        width: 320,
         height: 520,
         initialPosition: "top-left",
       },
@@ -150,6 +178,16 @@ export const ExtensionMenu = (props: {
           >
             <PodcastIcon />
             {t("header.menuExtension.startRTCInteraction")}
+          </Button>
+        </NavigationMenuLink>
+        <NavigationMenuLink asChild>
+          <Button
+            className="w-full justify-start"
+            variant="ghost"
+            onClick={onConfigTrulience}
+          >
+            <ScanFaceIcon />
+            {t("header.menuExtension.configTrulienceAvatar")}
           </Button>
         </NavigationMenuLink>
         <Separator className="w-full" />

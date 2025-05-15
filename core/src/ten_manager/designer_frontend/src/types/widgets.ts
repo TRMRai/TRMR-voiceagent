@@ -207,6 +207,7 @@ export enum EDefaultWidgetType {
   AppCreate = "app_create",
   DocRef = "doc_ref",
   RTCInteraction = "rtc_interaction",
+  TrulienceConfig = "trulience_config",
 }
 
 export interface IDefaultWidgetData {

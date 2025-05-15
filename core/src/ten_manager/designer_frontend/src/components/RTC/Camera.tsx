@@ -171,7 +171,7 @@ const VideoDeviceSelect = (
             })),
             ...[
               {
-                label: "Screen Share",
+                label: "Screen",
                 value: VideoSourceType.SCREEN,
                 deviceId: VideoSourceType.SCREEN,
               }

@@ -1,6 +1,10 @@
+import { useMultibandTrackVolume } from "@/hooks/use-audio-visualizer";
+import { IMicrophoneAudioTrack, IRemoteAudioTrack } from "agora-rtc-react";
+
 export interface AudioVisualizerProps {
   type: "agent" | "user"
-  frequencies: Float32Array[]
+  track?: IMicrophoneAudioTrack | IRemoteAudioTrack | null
+  bands: number
   gap: number
   barWidth: number
   minBarHeight: number
@@ -10,13 +14,19 @@ export interface AudioVisualizerProps {
 
 export default function AudioVisualizer(props: AudioVisualizerProps) {
   const {
-    frequencies,
+    track,
+    bands = 5,
     gap,
     barWidth,
     minBarHeight,
     maxBarHeight,
     borderRadius,
   } = props;
+
+  const frequencies = useMultibandTrackVolume(
+    track,
+    bands,
+  );
 
   const summedFrequencies = frequencies.map((bandFrequencies) => {
     const sum = bandFrequencies.reduce((a, b) => a + b, 0);
