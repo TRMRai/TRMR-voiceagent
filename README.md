@@ -30,7 +30,6 @@
 #### Table of Contents
 
 - [👋 Welcome to TEN](#-welcome-to-ten)
-- [🎨 TMAN Designer](#-tman-designer)
 - [🤖 TEN Agent](#-ten-agent)
   - [1️⃣ Real-time Avatar](#1️⃣-real-time-avatar)
   - [2️⃣ Real-time voice with MCP servers](#2️⃣-real-time-voice-with-mcp-servers)
@@ -347,24 +346,6 @@ Read the [Deployment Guide](https://theten.ai/docs/ten_agent/deploy_ten_agent/de
 
 We welcome all forms of open-source collaboration! Whether you're fixing bugs, adding features, improving documentation, or sharing ideas - your contributions help advance personalized AI tools. Check out our GitHub Issues and Projects to find ways to contribute and show your skills. Together, we can build something amazing!
 
-<br>
-
-> \[!TIP]
->
-> **Welcome all kinds of contributions** 🙏
->
-> Join us in building TEN better! Every contribution makes a difference, from code to documentation. Share your TEN Agent projects on social media with to inspire others!
->
-> Connect with one of the TEN maintainers [@elliotchen100](https://x.com/elliotchen100) on 𝕏 or [@cyfyifanchen](https://github.com/cyfyifanchen) on GitHub for project updates, discussions and collaboration opportunities.
-
-<br>
-
-### Code Contributors
-
-[![TEN](https://contrib.rocks/image?repo=TEN-framework/ten-agent)](https://github.com/TEN-framework/ten-agent/graphs/contributors)
-
-### Contribution Guidelines
-
 Contributions are welcome! Please read the [contribution guidelines](./docs/code-of-conduct/contributing.md) first.
 
 ### License
@@ -397,7 +378,6 @@ Contributions are welcome! Please read the [contribution guidelines](./docs/code
 
 [ten-agent-link]: https://github.com/ten-framework/ten-agent
 [ten-agent-banner]: https://ten-framework-assets.s3.us-east-1.amazonaws.com/readme/ten-agent.jpeg
-[tman-designer-banner]: https://ten-framework-assets.s3.us-east-1.amazonaws.com/tman-manager.jpeg
 
 [ten-docs-shield]: https://img.shields.io/github/stars/ten-framework/portal?color=ffcb47&labelColor=gray&style=flat-square&logo=github
 [ten-docs-banner]: https://ten-framework-assets.s3.us-east-1.amazonaws.com/readme/ten-doc.jpeg
