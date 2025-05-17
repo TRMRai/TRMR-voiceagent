@@ -7,17 +7,17 @@
 ![](https://img.shields.io/github/release-date/TRMRai/TRMR-voiceagent?labelColor=gray&style=flat-square)
 ![Commits](https://img.shields.io/github/commit-activity/m/TRMRai/TRMR-voiceagent?labelColor=gray&color=pink)
 ![](https://img.shields.io/badge/license-apache%202.0-blue?labelColor=gray&style=flat-square)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome!-brightgreen.svg?style=flat-square)](https://github.com/TEN-framework/ten-framework/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome!-brightgreen.svg?style=flat-square)](https://github.com/TRMR-framework/trmr-framework/pulls)
 
-[![GitHub watchers](https://img.shields.io/github/watchers/TEN-framework/ten_framework?style=social&label=Watch)](https://GitHub.com/TEN-framework/ten_framework/watchers/?WT.mc_id=academic-105485-koreyst)
-[![GitHub forks](https://img.shields.io/github/forks/TEN-framework/ten_framework?style=social&label=Fork)](https://GitHub.com/TEN-framework/ten_framework/network/?WT.mc_id=academic-105485-koreyst)
-[![GitHub stars](https://img.shields.io/github/stars/TEN-framework/ten_framework?style=social&label=Star)](https://GitHub.com/TEN-framework/ten_framework/stargazers/?WT.mc_id=academic-105485-koreyst)
+[![GitHub watchers](https://img.shields.io/github/watchers/TRMR-framework/trmr_framework?style=social&label=Watch)](https://GitHub.com/TRMR-framework/trmr_framework/watchers/?WT.mc_id=academic-105485-koreyst)
+[![GitHub forks](https://img.shields.io/github/forks/TRMR-framework/trmr_framework?style=social&label=Fork)](https://GitHub.com/TRMR-framework/trmr_framework/network/?WT.mc_id=academic-105485-koreyst)
+[![GitHub stars](https://img.shields.io/github/stars/TRMR-framework/trmr_framework?style=social&label=Star)](https://GitHub.com/TRMR-framework/trmr_framework/stargazers/?WT.mc_id=academic-105485-koreyst)
 
-[Official Site](https://theten.ai)
+[Official Site](https://trmr.ai)
 •
-[Documentation](https://theten.ai/docs/ten_agent/overview)
+[Documentation](https://trmr.ai/docs/trmr_agent/overview)
 •
-[Blog](https://theten.ai/blog)
+[Blog](https://trmr.ai/blog)
 
 
 </div>
@@ -25,25 +25,25 @@
 <br>
 
 <details>
-  <summary><kbd>Table of Contents</kbd></summary>
+  <summary><kbd>Table of Contrmrts</kbd></summary>
 
-#### Table of Contents
+#### Table of Contrmrts
 
-- [👋 Welcome to TEN](#-welcome-to-ten)
-- [🤖 TEN Agent](#-ten-agent)
+- [👋 Welcome to TRMR](#-welcome-to-trmr)
+- [🤖 TRMR Agent](#-trmr-agent)
   - [1️⃣ Real-time Avatar](#1️⃣-real-time-avatar)
   - [2️⃣ Real-time voice with MCP servers](#2️⃣-real-time-voice-with-mcp-servers)
   - [3️⃣ Real-time communication with hardware](#3️⃣-real-time-communication-with-hardware)
   - [4️⃣ Real-time vision and real-time screenshare detection](#4️⃣-real-time-vision-and-real-time-screenshare-detection)
-  - [5️⃣ TEN with other LLM platforms](#5️⃣-ten-with-other-llm-platforms)
-- [🛝 TEN Agent Playground](#-ten-agent-playground)
+  - [5️⃣ TRMR with other LLM platforms](#5️⃣-trmr-with-other-llm-platforms)
+- [🛝 TRMR Agent Playground](#-trmr-agent-playground)
   - [️🅰️ Run Playground in `localhost`](#🅰️-run-playground-in-localhost)
   - [️🅱️ Run Playground in Codespace(no docker)](#🅱️-run-playground-in-codespaceno-docker)
-- [🛳️ TEN Agent Self Hosting](#️-ten-agent-self-hosting)
+- [🛳️ TRMR Agent Self Hosting](#️-trmr-agent-self-hosting)
   - [🅰️ 🐳 Deploying with Docker](#️--deploying-with-docker)
   - [🅱️ Deploying with other cloud services](#️-deploying-with-other-cloud-services)
-- [🏗️ TEN Agent Architecture](#️-ten-agent-architecture)
-- [🌍 TEN Framework Ecosystem](#-ten-framework-ecosystem)
+- [🏗️ TRMR Agent Architecture](#️-trmr-agent-architecture)
+- [🌍 TRMR Framework Ecosystem](#-trmr-framework-ecosystem)
 - [🥰 Contributing](#-contributing)
   - [Code Contributors](#code-contributors)
   - [Contribution Guidelines](#contribution-guidelines)
@@ -53,37 +53,37 @@
 
 </details>
 
-## 👋 Welcome to TEN
+## 👋 Welcome to TRMR
 
-TEN is a collection of open-source projects for building real-time, multimodal conversational voice agents, including [TEN Framework](https://github.com/ten-framework/ten-framework), [TEN VAD](https://github.com/ten-framework/ten-vad), [TEN Turn Detection](https://github.com/ten-framework/ten-turn-detection), TEN Agent, TMAN Designer, [TEN Portal](https://github.com/ten-framework/portal), and more.
+TRMR is a collection of open-source projects for building real-time, multimodal conversational voice agents, including [TRMR Framework](https://github.com/trmr-framework/trmr-framework), [TRMR VAD](https://github.com/trmr-framework/trmr-vad), [TRMR Turn Detection](https://github.com/trmr-framework/trmr-turn-detection), TRMR Agent, TMAN Designer, [TRMR Portal](https://github.com/trmr-framework/portal), and more.
 
 <br>
 
 | Community Channel | Purpose |
 | ---------------- | ------- |
-| [![Follow on X](https://img.shields.io/twitter/follow/TenFramework?logo=X&color=%20%23f5f5f5)](https://twitter.com/intent/follow?screen_name=TenFramework) | Follow TEN Framework on X for updates and announcements |
-| [![Discord TEN Community](https://dcbadge.vercel.app/api/server/VnPftUzAMJ?&style=flat&theme=light&color=lightgray)](https://discord.gg/VnPftUzAMJ) | Join our Discord community to connect with developers |
-| [![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face-TEN%20Framework-yellow.svg?labelColor=gray&style=flat-square&logo=huggingface)](https://huggingface.co/TEN-framework) | Join our Hugging Face community to explore our spaces and models |
-| [![WeChat](https://img.shields.io/badge/TEN_Framework-WeChat_Group-%2307C160?logo=wechat&labelColor=darkgreen&color=gray)](https://github.com/TEN-framework/ten-agent/discussions/170) | Join our WeChat group for Chinese community discussions |
+| [![Follow on X](https://img.shields.io/twitter/follow/TrmrFramework?logo=X&color=%20%23f5f5f5)](https://twitter.com/intrmrt/follow?screen_name=TrmrFramework) | Follow TRMR Framework on X for updates and announcements |
+| [![Discord TRMR Community](https://dcbadge.vercel.app/api/server/VnPftUzAMJ?&style=flat&theme=light&color=lightgray)](https://discord.gg/VnPftUzAMJ) | Join our Discord community to connect with developers |
+| [![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face-TRMR%20Framework-yellow.svg?labelColor=gray&style=flat-square&logo=huggingface)](https://huggingface.co/TRMR-framework) | Join our Hugging Face community to explore our spaces and models |
+| [![WeChat](https://img.shields.io/badge/TRMR_Framework-WeChat_Group-%2307C160?logo=wechat&labelColor=darkgreen&color=gray)](https://github.com/TRMR-framework/trmr-agent/discussions/170) | Join our WeChat group for Chinese community discussions |
 
 <br>
 
 > \[!IMPORTANT]
 >
-> **Star TEN Repositories** ⭐️
+> **Star TRMR Repositories** ⭐️
 >
-> Get instant notifications for new releases and updates. Your support helps us grow and improve TEN!
+> Get instant notifications for new releases and updates. Your support helps us grow and improve TRMR!
 
 <br>
 
-![TEN star us gif](https://github.com/user-attachments/assets/eeebe996-8c14-4bf7-82ae-f1a1f7e30705)
+![TRMR star us gif](https://github.com/user-attachments/assets/eeebe996-8c14-4bf7-82ae-f1a1f7e30705)
 
 <br>
 
 <details>
   <summary><kbd>Star History</kbd></summary>
   <picture>
-    <img width="100%" src="https://api.star-history.com/svg?repos=ten-framework/ten-framework&type=Date">
+    <img width="100%" src="https://api.star-history.com/svg?repos=trmr-framework/trmr-framework&type=Date">
   </picture>
 </details>
 
@@ -95,13 +95,13 @@ TEN is a collection of open-source projects for building real-time, multimodal c
 
 <br>
 
-## 🤖 TEN Agent
+## 🤖 TRMR Agent
 
-![TEN Agent with Trulience](https://github.com/user-attachments/assets/2f1dfd55-14a3-47ea-ae25-40ad40ceadea)
+![TRMR Agent with Trulience](https://github.com/user-attachments/assets/2f1dfd55-14a3-47ea-ae25-40ad40ceadea)
 
 ### 1️⃣ Real-time Avatar
 
-Build engaging AI avatars with TEN Agent using [Trulience](https://trulience.com)'s diverse collection of free avatar options. To get it up and running, you only need 2 steps:
+Build engaging AI avatars with TRMR Agent using [Trulience](https://trulience.com)'s diverse collection of free avatar options. To get it up and running, you only need 2 steps:
 
 1. Follow the README to finish setting up and running the Playground
 2. Enter the avatar ID and [token](https://trulience.com/docs#/authentication/jwt-tokens/jwt-tokens?id=use-your-custom-userid) you get from [Trulience](https://trulience.com)
@@ -114,18 +114,18 @@ Build engaging AI avatars with TEN Agent using [Trulience](https://trulience.com
 
 <br>
 
-![TEN Agent with MCP servers](https://github.com/user-attachments/assets/934ba928-a4a3-4662-8624-cebefc88ce05)
+![TRMR Agent with MCP servers](https://github.com/user-attachments/assets/934ba928-a4a3-4662-8624-cebefc88ce05)
 
 ### 2️⃣ Real-time voice with MCP servers
 
-TEN Agent now integrates seamlessly with MCP servers, expanding its LLM capabilities. To get started:
+TRMR Agent now integrates seamlessly with MCP servers, expanding its LLM capabilities. To get started:
 
 1. Open the Module Picker in Playground
 2. Add the MCP server tool for LLM integration
-3. Paste a URL from your MCP server in the extension
-4. Start a realtime conversation with TEN Agent
+3. Paste a URL from your MCP server in the extrmrsion
+4. Start a realtime conversation with TRMR Agent
 
-This integration allows you to leverage MCP's diverse servers offerings while maintaining TEN Agent's powerful conversational abilities.
+This integration allows you to leverage MCP's diverse servers offerings while maintaining TRMR Agent's powerful conversational abilities.
 
 <div align="right">
 
@@ -139,9 +139,9 @@ This integration allows you to leverage MCP's diverse servers offerings while ma
 
 ### 3️⃣ Real-time communication with hardware
 
-TEN Agent is now running on the Espressif ESP32-S3 Korvo V3 development board, an excellent way to integrate realtime communication with LLM on hardware.
+TRMR Agent is now running on the Espressif ESP32-S3 Korvo V3 development board, an excellent way to integrate realtime communication with LLM on hardware.
 
-Check out the [integration guide](https://github.com/TEN-framework/ten-framework/tree/main/ai_agents/esp32-client) for more details.
+Check out the [integration guide](https://github.com/TRMR-framework/trmr-framework/tree/main/ai_agents/esp32-client) for more details.
 
 <div align="right">
 
@@ -155,7 +155,7 @@ Check out the [integration guide](https://github.com/TEN-framework/ten-framework
 
 ### 4️⃣ Real-time vision and real-time screenshare detection
 
-Try Google Gemini Multimodal Live API with realtime vision and realtime screenshare detection capabilities, it is a ready-to-use extension, along with powerful tools like Weather Check and Web Search integrated perfectly into TEN Agent.
+Try Google Gemini Multimodal Live API with realtime vision and realtime screenshare detection capabilities, it is a ready-to-use extrmrsion, along with powerful tools like Weather Check and Web Search integrated perfectly into TRMR Agent.
 
 <div align="right">
 
@@ -165,13 +165,13 @@ Try Google Gemini Multimodal Live API with realtime vision and realtime screensh
 
 <br>
 
-![TEN with other LLM platforms](https://github.com/user-attachments/assets/a3766d50-6a25-4299-b28c-e15772e4201c)
+![TRMR with other LLM platforms](https://github.com/user-attachments/assets/a3766d50-6a25-4299-b28c-e15772e4201c)
 
-### 5️⃣ TEN with other LLM platforms
+### 5️⃣ TRMR with other LLM platforms
 
-[TEN Agent + Dify](https://doc.theten.ai/docs/ten_agent/playground/use-cases/voice-assistant/run_dify)
+[TRMR Agent + Dify](https://doc.trmr.ai/docs/trmr_agent/playground/use-cases/voice-assistant/run_dify)
 
-TEN offers a great support to make the realtime interactive experience even better on other LLM platform as well, check out docs for more.
+TRMR offers a great support to make the realtime interactive experience even better on other LLM platform as well, check out docs for more.
 
 <div align="right">
 
@@ -181,7 +181,7 @@ TEN offers a great support to make the realtime interactive experience even bett
 
 <br>
 
-## 🛝 Quick Start with TEN Agent Playground
+## 🛝 Quick Start with TRMR Agent Playground
 
 #### 🅰️ Run Playground in localhost
 
@@ -228,7 +228,7 @@ docker compose up -d
 ##### 4. Enter container
 
 ```bash
-docker exec -it ten_agent_dev bash
+docker exec -it trmr_agent_dev bash
 ```
 
 ##### 5. Build agent with the default `graph` ( ~5min - ~8min)
@@ -255,7 +255,7 @@ task run
 
  1. Open [localhost:49483](localhost:49483).
  2. Load the corresponding graph from the menu (e.g., Voice Assistant).
- 3. Enter API keys and set preferences for each extension.
+ 3. Enter API keys and set preferences for each extrmrsion.
  4. Open [localhost:3000](localhost:3000) to see the changes after selecting Voice Assistant.
 
 <div align="right">
@@ -271,9 +271,9 @@ task run
 GitHub offers free Codespace for each repository, you can run the playground in Codespace without using Docker.Also, the speed of Codespace is much faster than localhost.
 
 [codespaces-shield]: <https://github.com/codespaces/badge.svg>
-[![][codespaces-shield]](https://codespaces.new/ten-framework/ten-agent)
+[![][codespaces-shield]](https://codespaces.new/trmr-framework/trmr-agent)
 
-Check out [this guide](https://theten.ai/docs/ten_agent/setup_development_env/setting_up_development_inside_codespace) for more details.
+Check out [this guide](https://trmr.ai/docs/trmr_agent/setup_development_env/setting_up_development_inside_codespace) for more details.
 
 <div align="right">
 
@@ -283,11 +283,11 @@ Check out [this guide](https://theten.ai/docs/ten_agent/setup_development_env/se
 
 <br>
 
-<!-- ## 👀 TEN Agent Demo
+<!-- ## 👀 TRMR Agent Demo
 
 Playground and Demo server different purposes, in a nut shell, think it as Playground is for you to customize you agent, and Demo is for you to deploy your agent.
 
-Check out [this guide](https://theten.ai/docs/ten_agent/demo) for more details.
+Check out [this guide](https://trmr.ai/docs/trmr_agent/demo) for more details.
 <div align="right">
 
 [![][back-to-top]](#readme-top)
@@ -296,13 +296,13 @@ Check out [this guide](https://theten.ai/docs/ten_agent/demo) for more details.
 
 <br> -->
 
-## 🛳️ TEN Agent Self Hosting
+## 🛳️ TRMR Agent Self Hosting
 
 #### 🅰️ 🐳 Deploying with Docker
 
 Once you have customized your agent (either by using the TMAN Manager, Playground, or editing `property.json` directly), you can deploy it by creating a release Docker image for your service.
 
-Read the [Deployment Guide](https://theten.ai/docs/ten_agent/deploy_ten_agent/deploy_agent_service) for detailed information about deployment.
+Read the [Deployment Guide](https://trmr.ai/docs/trmr_agent/deploy_trmr_agent/deploy_agent_service) for detailed information about deployment.
 
 <br>
 
@@ -319,9 +319,9 @@ Read the [Deployment Guide](https://theten.ai/docs/ten_agent/deploy_ten_agent/de
 <br>
 
 <!--
-## 🏗️ TEN Agent Architecture
+## 🏗️ TRMR Agent Architecture
 
-1️⃣ **TEN Agent App**: Core application that manages extensions and data flow based on graph configuration
+1️⃣ **TRMR Agent App**: Core application that manages extrmrsions and data flow based on graph configuration
 
 2️⃣ **Dev Server**: `port:49480`- local server for development purposes.
 
@@ -332,7 +332,7 @@ Read the [Deployment Guide](https://theten.ai/docs/ten_agent/deploy_ten_agent/de
 - `port:3000` Playground - To customize and test your agent configurations.
 - `port:3002` Demo - To deploy your agent without module picker.
 
-![Components Diagram](https://ten-framework-assets.s3.us-east-1.amazonaws.com/diagram.jpg)
+![Components Diagram](https://trmr-framework-assets.s3.us-east-1.amazonaws.com/diagram.jpg)
 
 <div align="right">
 
@@ -350,11 +350,11 @@ Contributions are welcome! Please read the [contribution guidelines](./docs/code
 
 ### License
 
-1. The entire TEN framework (except for the folders explicitly listed below) is released under the Apache License, Version 2.0, with additional restrictions. For details, please refer to the [LICENSE](./LICENSE) file located in the root directory of the TEN framework.
+1. The entire TRMR framework (except for the folders explicitly listed below) is released under the Apache License, Version 2.0, with additional restrictions. For details, please refer to the [LICENSE](./LICENSE) file located in the root directory of the TRMR framework.
 
 2. The components within the `packages` directory are released under the Apache License, Version 2.0. For details, please refer to the `LICENSE` file located in each package's root directory.
 
-3. The third-party libraries used by the TEN framework are listed and described in detail. For more information, please refer to the [third_party](./third_party/) folder.
+3. The third-party libraries used by the TRMR framework are listed and described in detail. For more information, please refer to the [third_party](./third_party/) folder.
 
 <div align="right">
 
@@ -364,20 +364,20 @@ Contributions are welcome! Please read the [contribution guidelines](./docs/code
 
 [back-to-top]: https://img.shields.io/badge/-Back_to_top-gray?style=flat-square
 
-[ten-framework-shield]: https://img.shields.io/github/stars/ten-framework/ten_framework?color=ffcb47&labelColor=gray&style=flat-square&logo=github
-[ten-framework-banner]: https://github.com/user-attachments/assets/72c70d91-3db6-41d6-8ce0-8a2064564fb8
-[ten-framework-link]: https://github.com/ten-framework/ten_framework
+[trmr-framework-shield]: https://img.shields.io/github/stars/trmr-framework/trmr_framework?color=ffcb47&labelColor=gray&style=flat-square&logo=github
+[trmr-framework-banner]: https://github.com/user-attachments/assets/72c70d91-3db6-41d6-8ce0-8a2064564fb8
+[trmr-framework-link]: https://github.com/trmr-framework/trmr_framework
 
-[ten-vad-link]: https://github.com/ten-framework/ten-vad
-[ten-vad-shield]: https://img.shields.io/github/stars/ten-framework/ten-vad?color=ffcb47&labelColor=gray&style=flat-square&logo=github
-[ten-vad-banner]: https://github.com/user-attachments/assets/c61d74e7-4356-4c74-98d8-af2cdd125642
+[trmr-vad-link]: https://github.com/trmr-framework/trmr-vad
+[trmr-vad-shield]: https://img.shields.io/github/stars/trmr-framework/trmr-vad?color=ffcb47&labelColor=gray&style=flat-square&logo=github
+[trmr-vad-banner]: https://github.com/user-attachments/assets/c61d74e7-4356-4c74-98d8-af2cdd125642
 
-[ten-turn-detection-link]: https://github.com/ten-framework/ten-turn-detection
-[ten-turn-detection-shield]: https://img.shields.io/github/stars/ten-framework/ten-turn-detection?color=ffcb47&labelColor=gray&style=flat-square&logo=github
-[ten-turn-detection-banner]: https://github.com/user-attachments/assets/14f868dd-56d3-4916-8485-94b1a211d37d
+[trmr-turn-detection-link]: https://github.com/trmr-framework/trmr-turn-detection
+[trmr-turn-detection-shield]: https://img.shields.io/github/stars/trmr-framework/trmr-turn-detection?color=ffcb47&labelColor=gray&style=flat-square&logo=github
+[trmr-turn-detection-banner]: https://github.com/user-attachments/assets/14f868dd-56d3-4916-8485-94b1a211d37d
 
-[ten-agent-link]: https://github.com/ten-framework/ten-agent
-[ten-agent-banner]: https://ten-framework-assets.s3.us-east-1.amazonaws.com/readme/ten-agent.jpeg
+[trmr-agent-link]: https://github.com/trmr-framework/trmr-agent
+[trmr-agent-banner]: https://trmr-framework-assets.s3.us-east-1.amazonaws.com/readme/trmr-agent.jpeg
 
-[ten-docs-shield]: https://img.shields.io/github/stars/ten-framework/portal?color=ffcb47&labelColor=gray&style=flat-square&logo=github
-[ten-docs-banner]: https://ten-framework-assets.s3.us-east-1.amazonaws.com/readme/ten-doc.jpeg
+[trmr-docs-shield]: https://img.shields.io/github/stars/trmr-framework/portal?color=ffcb47&labelColor=gray&style=flat-square&logo=github
+[trmr-docs-banner]: https://trmr-framework-assets.s3.us-east-1.amazonaws.com/readme/trmr-doc.jpeg
