@@ -96,34 +96,6 @@ TEN is a collection of open-source projects for building real-time, multimodal c
 
 <br>
 
-## 🎨 TMAN Designer
-
-![TMAN Designer](https://github.com/user-attachments/assets/04fd75df-4de9-41b6-8aab-19014ecb46a4)
-
-### TMAN Designer
-
-TMAN Designer is a low/no-code option to create voice agents with an easy-to-use workflow UI. It can load apps and graphs, and includes an online editor, log viewer, and much more.
-
-Check out [this blog](https://theten.ai/blog/tman-designer-of-ten-framework) for more details.
-
-<div align="right">
-
-[![][back-to-top]](#readme-top)
-
-</div>
-
-<!-- ## 🧩 Extensions
-
-![Ready-to-use Extensions](https://ten-framework-assets.s3.us-east-1.amazonaws.com/extensions.jpg)
-
-<div align="right">
-
-[![][back-to-top]](#readme-top)
-
-</div> -->
-
-<br>
-
 ## 🤖 TEN Agent
 
 ![TEN Agent with Trulience](https://github.com/user-attachments/assets/2f1dfd55-14a3-47ea-ae25-40ad40ceadea)
