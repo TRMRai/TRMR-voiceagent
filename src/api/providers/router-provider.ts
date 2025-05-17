@@ -56,21 +56,17 @@ export abstract class RouterProvider extends BaseProvider {
 	}
 
 	override getModel(): { id: string; info: ModelInfo } {
-		const userSpecifiedModelId = this.modelId
-
-		// Priority 1: Use user-specified model if it's valid and found in fetched models
-		if (userSpecifiedModelId && this.models[userSpecifiedModelId]) {
-			return { id: userSpecifiedModelId, info: this.models[userSpecifiedModelId] }
+		// Try user-specified model first
+		if (this.modelId && this.models[this.modelId]) {
+			return { id: this.modelId, info: this.models[this.modelId] }
 		}
 
-		// Priority 2: If user-specified model is not found (or not specified at all),
-		// try the provider's default model ID with its fetched info (if available).
+		// Try default model with fetched info
 		if (this.models[this.defaultModelId]) {
 			return { id: this.defaultModelId, info: this.models[this.defaultModelId] }
 		}
 
-		// Priority 3: Ultimate fallback: provider's default model ID with its (static) defaultModelInfo.
-		// This is reached if userSpecifiedModelId was invalid/not found AND this.defaultModelId was also not in this.models.
+		// Fallback to default model with static info
 		return { id: this.defaultModelId, info: this.defaultModelInfo }
 	}
 
