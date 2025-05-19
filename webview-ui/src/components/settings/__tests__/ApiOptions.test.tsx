@@ -41,8 +41,8 @@ jest.mock("vscrui", () => ({
 
 // Mock @shadcn/ui components
 jest.mock("@/components/ui", () => ({
-	Select: ({ children, value, onValueChange }: any) => (
-		<div className="select-mock">
+	Select: ({ children, value, onValueChange, ...rest }: any) => (
+		<div className="select-mock" data-testid={rest["data-testid"]}>
 			<select value={value} onChange={(e) => onValueChange && onValueChange(e.target.value)}>
 				{children}
 			</select>
@@ -152,11 +152,13 @@ jest.mock("@src/components/ui/hooks/useSelectedModel", () => ({
 		if (apiConfiguration.apiModelId?.includes("thinking")) {
 			return {
 				provider: apiConfiguration.apiProvider,
+				id: apiConfiguration.apiModelId,
 				info: { thinking: true, contextWindow: 4000, maxTokens: 128000 },
 			}
 		} else {
 			return {
 				provider: apiConfiguration.apiProvider,
+				id: apiConfiguration.apiModelId,
 				info: { contextWindow: 4000 },
 			}
 		}

@@ -12,7 +12,7 @@ import { ModelPicker } from "../ModelPicker"
 import { WebviewMessage } from "@roo/shared/WebviewMessage"
 import { ExtensionMessage } from "@roo/shared/ExtensionMessage"
 
-type LiteLLMProps = {
+export type LiteLLMProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
 	// routerModels prop might need to be updated by parent if we want to show new models immediately.
