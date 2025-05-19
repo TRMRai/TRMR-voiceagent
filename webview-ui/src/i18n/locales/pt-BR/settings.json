@@ -121,7 +121,8 @@
 			"hint": "Por favor, reabra as configurações para ver os modelos mais recentes.",
 			"loading": "Atualizando modelos...",
 			"success": "Modelos atualizados com sucesso.",
-			"error": "Falha ao atualizar modelos. Verifique sua configuração e tente novamente."
+			"error": "Falha ao atualizar modelos. Verifique sua configuração e tente novamente.",
+			"missingConfig": "Chave API ou URL base ausente. Por favor, forneça ambos para atualizar os modelos."
 		},
 		"getRequestyApiKey": "Obter chave de API Requesty",
 		"openRouterTransformsText": "Comprimir prompts e cadeias de mensagens para o tamanho do contexto (<a>Transformações OpenRouter</a>)",

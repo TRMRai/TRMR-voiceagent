@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect, useRef } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { useEvent } from "react-use"
 
@@ -24,6 +24,7 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, routerMode
 	const { t } = useAppTranslation()
 	const [refreshStatus, setRefreshStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 	const [refreshError, setRefreshError] = useState<string | undefined>()
+	const initialRefreshPerformedRef = useRef(false)
 
 	const handleInputChange = useCallback(
 		<K extends keyof ProviderSettings, E>(
@@ -36,14 +37,18 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, routerMode
 		[setApiConfigurationField],
 	)
 
-	const handleRefreshModels = () => {
+	const handleRefreshModels = useCallback(() => {
 		setRefreshStatus("loading")
 		setRefreshError(undefined)
 
-		// Due to the button's disabled state logic, litellmApiKey and litellmBaseUrl are guaranteed to be non-empty strings here.
-		// We use non-null assertions (!) to reflect this guarantee for type safety.
-		const key = apiConfiguration.litellmApiKey!
-		const url = apiConfiguration.litellmBaseUrl!
+		const key = apiConfiguration.litellmApiKey
+		const url = apiConfiguration.litellmBaseUrl
+
+		if (!key || !url) {
+			setRefreshStatus("error")
+			setRefreshError(t("settings:providers.refreshModels.missingConfig"))
+			return
+		}
 
 		const message: WebviewMessage = {
 			type: "requestProviderModels",
@@ -54,9 +59,34 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, routerMode
 			},
 		}
 		vscode.postMessage(message)
-	}
+	}, [apiConfiguration.litellmApiKey, apiConfiguration.litellmBaseUrl, setRefreshStatus, setRefreshError, t])
 
-	// Listen for model refresh responses using useEvent
+	// Effect to trigger initial model refresh, once per component instance when conditions are met
+	useEffect(() => {
+		// Only proceed if the initial refresh for this component instance hasn't been done
+		if (initialRefreshPerformedRef.current) {
+			return
+		}
+
+		// Check if the necessary configuration is available
+		if (apiConfiguration.litellmApiKey && apiConfiguration.litellmBaseUrl) {
+			// Mark that we are performing the refresh for this instance
+			initialRefreshPerformedRef.current = true
+			// Directly execute refresh logic
+			setRefreshStatus("loading")
+			setRefreshError(undefined)
+			const message: WebviewMessage = {
+				type: "requestProviderModels",
+				payload: {
+					provider: "litellm",
+					apiKey: apiConfiguration.litellmApiKey,
+					baseUrl: apiConfiguration.litellmBaseUrl,
+				},
+			}
+			vscode.postMessage(message)
+		}
+	}, [apiConfiguration.litellmApiKey, apiConfiguration.litellmBaseUrl])
+
 	useEvent("message", (event: MessageEvent<ExtensionMessage>) => {
 		const message = event.data
 		if (message.type === "providerModelsResponse") {
@@ -67,7 +97,6 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, routerMode
 					setRefreshError(message.payload.error)
 				} else {
 					setRefreshStatus("success")
-					// Parent (ApiOptions.tsx) will handle updating the routerModels prop for ModelPicker
 				}
 			} else {
 				console.log(
@@ -77,7 +106,6 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, routerMode
 			}
 		}
 	})
-	console.log("apiconfig1212", apiConfiguration)
 
 	return (
 		<>

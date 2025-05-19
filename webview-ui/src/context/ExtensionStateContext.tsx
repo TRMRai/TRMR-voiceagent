@@ -188,6 +188,16 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		[],
 	)
 
+	const setApiConfiguration = useCallback((value: ProviderSettings) => {
+		setState((prevState) => ({
+			...prevState,
+			apiConfiguration: {
+				...prevState.apiConfiguration,
+				...value,
+			},
+		}))
+	}, [])
+
 	const handleMessage = useCallback(
 		(event: MessageEvent) => {
 			const message: ExtensionMessage = event.data
@@ -266,14 +276,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		screenshotQuality: state.screenshotQuality,
 		setExperimentEnabled: (id, enabled) =>
 			setState((prevState) => ({ ...prevState, experiments: { ...prevState.experiments, [id]: enabled } })),
-		setApiConfiguration: (value) =>
-			setState((prevState) => ({
-				...prevState,
-				apiConfiguration: {
-					...prevState.apiConfiguration,
-					...value,
-				},
-			})),
+		setApiConfiguration,
 		setCustomInstructions: (value) => setState((prevState) => ({ ...prevState, customInstructions: value })),
 		setAlwaysAllowReadOnly: (value) => setState((prevState) => ({ ...prevState, alwaysAllowReadOnly: value })),
 		setAlwaysAllowReadOnlyOutsideWorkspace: (value) =>

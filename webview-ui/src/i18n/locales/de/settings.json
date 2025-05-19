@@ -121,7 +121,8 @@
 			"hint": "Bitte öffne die Einstellungen erneut, um die neuesten Modelle zu sehen.",
 			"loading": "Modelle werden aktualisiert...",
 			"success": "Modelle erfolgreich aktualisiert.",
-			"error": "Fehler beim Aktualisieren der Modelle. Bitte überprüfe deine Konfiguration und versuche es erneut."
+			"error": "Fehler beim Aktualisieren der Modelle. Bitte überprüfe deine Konfiguration und versuche es erneut.",
+			"missingConfig": "API-Schlüssel oder Basis-URL fehlt. Bitte gib beides an, um Modelle zu aktualisieren."
 		},
 		"getRequestyApiKey": "Requesty API-Schlüssel erhalten",
 		"openRouterTransformsText": "Prompts und Nachrichtenketten auf Kontextgröße komprimieren (<a>OpenRouter Transformationen</a>)",

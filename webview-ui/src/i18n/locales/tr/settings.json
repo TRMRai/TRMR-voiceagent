@@ -121,7 +121,8 @@
 			"hint": "En son modelleri görmek için lütfen ayarları yeniden açın.",
 			"loading": "Modeller yenileniyor...",
 			"success": "Modeller başarıyla yenilendi.",
-			"error": "Modeller yenilenemedi. Lütfen yapılandırmanızı kontrol edin ve tekrar deneyin."
+			"error": "Modeller yenilenemedi. Lütfen yapılandırmanızı kontrol edin ve tekrar deneyin.",
+			"missingConfig": "API anahtarı veya temel URL eksik. Modelleri yenilemek için lütfen her ikisini de sağlayın."
 		},
 		"getRequestyApiKey": "Requesty API Anahtarı Al",
 		"openRouterTransformsText": "İstem ve mesaj zincirlerini bağlam boyutuna sıkıştır (<a>OpenRouter Dönüşümleri</a>)",

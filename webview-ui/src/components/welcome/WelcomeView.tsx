@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
 import { validateApiConfiguration } from "@src/utils/validate"
@@ -10,11 +10,66 @@ import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { getRequestyAuthUrl, getOpenRouterAuthUrl } from "@src/oauth/urls"
 import RooHero from "./RooHero"
 import knuthShuffle from "knuth-shuffle-seeded"
+import { ProviderSettings, litellmDefaultModelId } from "@roo/shared/api"
 
 const WelcomeView = () => {
 	const { apiConfiguration, currentApiConfigName, setApiConfiguration, uriScheme, machineId } = useExtensionState()
 	const { t } = useAppTranslation()
 	const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+
+	// Memoize the setApiConfigurationField function to pass to ApiOptions
+	const setApiConfigurationFieldForApiOptions = useCallback(
+		<K extends keyof ProviderSettings>(field: K, value: ProviderSettings[K]) => {
+			setApiConfiguration({ [field]: value })
+		},
+		[setApiConfiguration], // setApiConfiguration from context is stable
+	)
+
+	useEffect(() => {
+		if (!apiConfiguration) {
+			// If no apiConfig at all, nothing to default yet.
+			// This can happen before the initial state hydration from the extension.
+			return
+		}
+
+		const currentProvider = apiConfiguration.apiProvider
+		// Needs provider default if apiProvider is undefined, null, or an empty string.
+		const needsProviderDefault = !currentProvider
+		const isLiteLLMSelectedOrShouldBeDefault = currentProvider === "litellm" || needsProviderDefault
+
+		if (isLiteLLMSelectedOrShouldBeDefault) {
+			const updates: Partial<ProviderSettings> = {}
+			let madeChanges = false
+
+			if (apiConfiguration.litellmBaseUrl === undefined) {
+				updates.litellmBaseUrl = "http://localhost:4000"
+				madeChanges = true
+			}
+			if (apiConfiguration.litellmApiKey === undefined) {
+				updates.litellmApiKey = "sk-1234"
+				madeChanges = true
+			}
+			if (apiConfiguration.litellmModelId === undefined) {
+				updates.litellmModelId = litellmDefaultModelId
+				madeChanges = true
+			}
+
+			// If apiProvider was initially missing or falsy, set it to "litellm".
+			if (needsProviderDefault) {
+				updates.apiProvider = "litellm"
+				madeChanges = true
+			}
+
+			if (madeChanges) {
+				// This log helps confirm if we are about to call setApiConfiguration
+				setApiConfiguration(updates)
+			} else {
+				// This log helps confirm that on subsequent runs, no changes are deemed necessary.
+			}
+		}
+	}, [apiConfiguration, setApiConfiguration])
+
+	useEffect(() => {}, [apiConfiguration])
 
 	const handleSubmit = useCallback(() => {
 		const error = apiConfiguration ? validateApiConfiguration(apiConfiguration) : undefined
@@ -106,7 +161,7 @@ const WelcomeView = () => {
 						fromWelcomeView
 						apiConfiguration={apiConfiguration || {}}
 						uriScheme={uriScheme}
-						setApiConfigurationField={(field, value) => setApiConfiguration({ [field]: value })}
+						setApiConfigurationField={setApiConfigurationFieldForApiOptions}
 						errorMessage={errorMessage}
 						setErrorMessage={setErrorMessage}
 					/>

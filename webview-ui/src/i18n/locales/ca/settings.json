@@ -121,7 +121,8 @@
 			"hint": "Si us plau, torneu a obrir la configuració per veure els models més recents.",
 			"loading": "Actualitzant models...",
 			"success": "Models actualitzats correctament.",
-			"error": "No s'han pogut actualitzar els models. Si us plau, comproveu la vostra configuració i torneu-ho a provar."
+			"error": "No s'han pogut actualitzar els models. Si us plau, comproveu la vostra configuració i torneu-ho a provar.",
+			"missingConfig": "Falta la clau API o l'URL base. Si us plau, proporcioneu ambdós per actualitzar els models."
 		},
 		"getRequestyApiKey": "Obtenir clau API de Requesty",
 		"openRouterTransformsText": "Comprimir prompts i cadenes de missatges a la mida del context (<a>Transformacions d'OpenRouter</a>)",

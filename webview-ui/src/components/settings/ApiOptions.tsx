@@ -263,16 +263,29 @@ const ApiOptions = ({
 						setApiConfigurationField("requestyModelId", requestyDefaultModelId)
 					}
 					break
-				case "litellm":
-					if (!apiConfiguration.litellmModelId) {
+				case "litellm": {
+					let currentLitellmModelId = apiConfiguration.litellmModelId
+					if (!currentLitellmModelId) {
 						setApiConfigurationField("litellmModelId", litellmDefaultModelId)
+						currentLitellmModelId = litellmDefaultModelId // Use the default for the next step
+					}
+					// Ensure apiModelId is also set to the specific litellm model id
+					if (apiConfiguration.apiModelId !== currentLitellmModelId) {
+						setApiConfigurationField("apiModelId", currentLitellmModelId)
 					}
 					break
+				}
 			}
 
-			setApiConfigurationField("apiProvider", value)
+			// Only update the apiProvider if it's actually changing.
+			// This should be called after model-specific IDs are handled for the new provider.
+			if (apiConfiguration.apiProvider !== value) {
+				setApiConfigurationField("apiProvider", value)
+			}
 		},
 		[
+			apiConfiguration.apiProvider,
+			apiConfiguration.apiModelId, // Add apiModelId as it's read and potentially set
 			setApiConfigurationField,
 			apiConfiguration.openRouterModelId,
 			apiConfiguration.glamaModelId,

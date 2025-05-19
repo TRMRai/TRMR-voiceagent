@@ -27,7 +27,7 @@ import {
 
 import { ExperimentId } from "@roo/shared/experiments"
 import { TelemetrySetting } from "@roo/shared/TelemetrySetting"
-import { ProviderSettings } from "@roo/shared/api"
+import { ProviderSettings, litellmDefaultModelId } from "@roo/shared/api"
 
 import { vscode } from "@/utils/vscode"
 import { ExtensionStateContextType, useExtensionState } from "@/context/ExtensionStateContext"
@@ -218,6 +218,51 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			return { ...prevState, experiments: { ...prevState.experiments, [id]: enabled } }
 		})
 	}, [])
+
+	useEffect(() => {
+		// This effect ensures that if LiteLLM is the provider,
+		// its specific configuration fields have default values in the cached state.
+		const config = cachedState.apiConfiguration
+		if (config && config.apiProvider === "litellm") {
+			const baseUrlMissing = config.litellmBaseUrl === undefined
+			const apiKeyMissing = config.litellmApiKey === undefined
+
+			if (baseUrlMissing || apiKeyMissing) {
+				setCachedState((prevState) => {
+					// Ensure we are working with the latest apiConfiguration from prevState
+					const currentApiConfig = prevState.apiConfiguration ?? {}
+					let updatedApiConfig = { ...currentApiConfig } // Clone to modify
+					let madeChanges = false
+
+					// Check and apply defaults based on the fresh currentApiConfig
+					if (currentApiConfig.litellmBaseUrl === undefined) {
+						updatedApiConfig.litellmBaseUrl = "http://localhost:4000"
+						madeChanges = true
+					}
+					if (currentApiConfig.litellmApiKey === undefined) {
+						updatedApiConfig.litellmApiKey = "sk-1234"
+						madeChanges = true
+					}
+					if (currentApiConfig.litellmModelId === undefined) {
+						updatedApiConfig.litellmModelId = litellmDefaultModelId
+						madeChanges = true
+					}
+
+					if (madeChanges) {
+						// setChangeDetected is not directly available here unless passed to setCachedState's scope or handled differently
+						// For now, we focus on updating apiConfiguration correctly.
+						// The parent component (SettingsView) already calls setChangeDetected(true) when setApiConfigurationField is used.
+						// If we bypass setApiConfigurationField, we need to call setChangeDetected here.
+						setChangeDetected(true) // Call setChangeDetected as we are modifying the state that tracks changes.
+						return { ...prevState, apiConfiguration: updatedApiConfig }
+					}
+					return prevState // No changes were actually needed based on the fresh check
+				})
+			}
+		}
+		// Adding setCachedState and setChangeDetected to dependencies as they are used directly or indirectly.
+		// setApiConfigurationField is removed as we are not calling it from here for these specific defaults.
+	}, [cachedState.apiConfiguration, setCachedState, setChangeDetected])
 
 	const setTelemetrySetting = useCallback((setting: TelemetrySetting) => {
 		setCachedState((prevState) => {
