@@ -14,7 +14,6 @@ import { checkExistKey } from "../../shared/checkExistApiConfig"
 import { experimentDefault } from "../../shared/experiments"
 import { Terminal } from "../../integrations/terminal/Terminal"
 import { openFile, openImage } from "../../integrations/misc/open-file"
-import { selectImages } from "../../integrations/misc/process-images"
 import { getTheme } from "../../integrations/theme/getTheme"
 import { discoverChromeHostUrl, tryChromeHostUrl } from "../../services/browser/browserDiscovery"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
@@ -38,14 +37,47 @@ import { flushModels, getModels } from "../../api/providers/fetchers/modelCache"
 import { GetModelsOptions } from "../../shared/api"
 import { generateSystemPrompt } from "./generateSystemPrompt"
 import { handleRequestProviderModels } from "./messageHandlers/requestProviderModelsHandler"
+import { handleNewTask } from "./messageHandlers/handleNewTask"
+import { handleCustomInstructions } from "./messageHandlers/handleCustomInstructions"
+import { handleClearTask } from "./messageHandlers/handleClearTask"
+import { handleSelectImages } from "./messageHandlers/handleSelectImages"
 
 const ALLOWED_VSCODE_SETTINGS = new Set(["terminal.integrated.inheritEnv"])
 
+type MessageHandler<T extends WebviewMessage["type"]> = (
+	provider: ClineProvider,
+	message: WebviewMessage & { type: T },
+) => Promise<void>
+
+const messageHandlers: Partial<Record<WebviewMessage["type"], MessageHandler<any>>> = {
+	requestProviderModels: handleRequestProviderModels,
+	newTask: handleNewTask,
+	customInstructions: handleCustomInstructions,
+	clearTask: handleClearTask,
+	selectImages: handleSelectImages,
+	// ... other handlers will be added here
+}
+
 export const webviewMessageHandler = async (provider: ClineProvider, message: WebviewMessage) => {
-	// Utility functions provided for concise get/update of global state via contextProxy API.
 	const getGlobalState = <K extends keyof GlobalState>(key: K) => provider.contextProxy.getValue(key)
 	const updateGlobalState = async <K extends keyof GlobalState>(key: K, value: GlobalState[K]) =>
 		await provider.contextProxy.setValue(key, value)
+
+	const handler = messageHandlers[message.type]
+	if (handler) {
+		try {
+			await handler(provider, message as any)
+		} catch (error) {
+			provider.log(
+				`Error handling message type ${message.type}: ${error instanceof Error ? error.message : String(error)}`,
+			)
+			// Optionally, send an error message back to the webview or show a vscode error notification
+			vscode.window.showErrorMessage(
+				`Error processing action: ${message.type}. Details: ${error instanceof Error ? error.message : String(error)}`,
+			)
+		}
+		return
+	}
 
 	switch (message.type) {
 		case "webviewDidLaunch":
@@ -122,15 +154,6 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 
 			provider.isViewLaunched = true
 			break
-		case "newTask":
-			// Initializing new instance of Cline will make sure that any
-			// agentically running promises in old instance don't affect our new
-			// task. This essentially creates a fresh slate for the new task.
-			await provider.initClineWithTask(message.text, message.images)
-			break
-		case "customInstructions":
-			await provider.updateCustomInstructions(message.text)
-			break
 		case "alwaysAllowReadOnly":
 			await updateGlobalState("alwaysAllowReadOnly", message.bool ?? undefined)
 			await provider.postStateToWebview()
@@ -175,18 +198,9 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 				provider.getCurrentCline()?.handleTerminalOperation(message.terminalOperation)
 			}
 			break
-		case "clearTask":
-			// clear task resets the current session and allows for a new task to be started, if this session is a subtask - it allows the parent task to be resumed
-			await provider.finishSubTask(t("common:tasks.canceled"))
-			await provider.postStateToWebview()
-			break
 		case "didShowAnnouncement":
 			await updateGlobalState("lastShownAnnouncementId", provider.latestAnnouncementId)
 			await provider.postStateToWebview()
-			break
-		case "selectImages":
-			const images = await selectImages()
-			await provider.postMessageToWebview({ type: "selectedImages", images })
 			break
 		case "exportCurrentTask":
 			const currentTaskId = provider.getCurrentCline()?.taskId
@@ -278,10 +292,6 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			const routerNameFlush: RouterName = toRouterName(message.text)
 			await flushModels(routerNameFlush)
 			break
-		case "requestProviderModels": {
-			await handleRequestProviderModels(provider, message as WebviewMessage & { type: "requestProviderModels" })
-			break
-		}
 		case "requestRouterModels":
 			const { apiConfiguration } = await provider.getState()
 
@@ -879,7 +889,7 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 										...provider
 											.getCurrentCline()!
 											.apiConversationHistory.filter(
-												(msg) => msg.ts && msg.ts >= nextUserMessage.ts,
+												(msg) => msg.ts && msg.ts >= nextUserMessage.ts!,
 											),
 									])
 							} else {
@@ -1306,5 +1316,8 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await provider.postStateToWebview()
 			break
 		}
+		default:
+			provider.log(`Unknown message type received: ${message.type}`)
+			break
 	}
 }
