@@ -73,7 +73,7 @@ export const getModels = async (
 					// However, for robustness, if called without baseUrl for litellm, it would fail in getLiteLLMModels or here.
 					throw new Error("Base URL and api key are required for LiteLLM models.")
 				}
-				models = await getLiteLLMModels(apiKey || "", baseUrl)
+				models = await getLiteLLMModels(apiKey, baseUrl)
 				break
 			default:
 				// Ensures router is exhaustively checked if RouterName is a strict union
