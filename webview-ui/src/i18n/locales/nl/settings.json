@@ -123,7 +123,11 @@
 		"requestyApiKey": "Requesty API-sleutel",
 		"refreshModels": {
 			"label": "Modellen verversen",
-			"hint": "Open de instellingen opnieuw om de nieuwste modellen te zien."
+			"hint": "Open de instellingen opnieuw om de nieuwste modellen te zien.",
+			"loading": "Modellen verversen...",
+			"success": "Modellen succesvol ververst.",
+			"error": "Modellen verversen mislukt. Controleer je configuratie en probeer het opnieuw.",
+			"missingConfig": "API-sleutel of basis-URL ontbreekt. Geef beide op om modellen te verversen."
 		},
 		"getRequestyApiKey": "Requesty API-sleutel ophalen",
 		"openRouterTransformsText": "Comprimeer prompts en berichtreeksen tot de contextgrootte (<a>OpenRouter Transforms</a>)",

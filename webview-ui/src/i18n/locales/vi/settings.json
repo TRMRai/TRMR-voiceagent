@@ -123,7 +123,11 @@
 		"requestyApiKey": "Khóa API Requesty",
 		"refreshModels": {
 			"label": "Làm mới mô hình",
-			"hint": "Vui lòng mở lại cài đặt để xem các mô hình mới nhất."
+			"hint": "Vui lòng mở lại cài đặt để xem các mô hình mới nhất.",
+			"loading": "Đang làm mới mô hình...",
+			"success": "Làm mới mô hình thành công.",
+			"error": "Không thể làm mới mô hình. Vui lòng kiểm tra cấu hình của bạn và thử lại.",
+			"missingConfig": "Thiếu khóa API hoặc URL cơ sở. Vui lòng cung cấp cả hai để làm mới mô hình."
 		},
 		"getRequestyApiKey": "Lấy khóa API Requesty",
 		"openRouterTransformsText": "Nén lời nhắc và chuỗi tin nhắn theo kích thước ngữ cảnh (<a>OpenRouter Transforms</a>)",

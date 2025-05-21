@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { ProviderSettings } from "./api"
+import { ProviderSettings, GetModelsOptions } from "./api"
 import { Mode, PromptComponent, ModeConfig } from "./modes"
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"
@@ -131,6 +131,7 @@ export interface WebviewMessage {
 		| "searchFiles"
 		| "toggleApiConfigPin"
 		| "setHistoryPreviewCollapsed"
+		| "requestProviderModels"
 		| "condenseTaskContextRequest"
 	text?: string
 	disabled?: boolean
@@ -180,4 +181,4 @@ export const checkoutRestorePayloadSchema = z.object({
 
 export type CheckpointRestorePayload = z.infer<typeof checkoutRestorePayloadSchema>
 
-export type WebViewMessagePayload = CheckpointDiffPayload | CheckpointRestorePayload
+export type WebViewMessagePayload = CheckpointDiffPayload | CheckpointRestorePayload | GetModelsOptions

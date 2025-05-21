@@ -123,7 +123,11 @@
 		"requestyApiKey": "Chiave API Requesty",
 		"refreshModels": {
 			"label": "Aggiorna modelli",
-			"hint": "Riapri le impostazioni per vedere i modelli più recenti."
+			"hint": "Riapri le impostazioni per vedere i modelli più recenti.",
+			"loading": "Aggiornamento modelli in corso...",
+			"success": "Modelli aggiornati con successo.",
+			"error": "Impossibile aggiornare i modelli. Verifica la tua configurazione e riprova.",
+			"missingConfig": "Chiave API o URL base mancante. Fornisci entrambi per aggiornare i modelli."
 		},
 		"getRequestyApiKey": "Ottieni chiave API Requesty",
 		"openRouterTransformsText": "Comprimi prompt e catene di messaggi alla dimensione del contesto (<a>Trasformazioni OpenRouter</a>)",

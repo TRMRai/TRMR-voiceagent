@@ -134,6 +134,14 @@ jest.mock("@/components/ui", () => ({
 	),
 }))
 
+// Mock ApiOptions to inspect its props
+jest.mock("../ApiOptions", () => ({
+	__esModule: true,
+	default: jest.fn((props) => (
+		<div data-testid="api-options-mock" data-apiconfiguration={JSON.stringify(props.apiConfiguration)} />
+	)),
+}))
+
 // Mock window.postMessage to trigger state hydration
 const mockPostMessage = (state: any) => {
 	window.postMessage(
@@ -369,12 +377,86 @@ describe("SettingsView - Sound Settings", () => {
 describe("SettingsView - API Configuration", () => {
 	beforeEach(() => {
 		jest.clearAllMocks()
+		// Reset ApiOptions mock calls before each test if needed
+		require("../ApiOptions").default.mockClear()
 	})
 
-	it("renders ApiConfigManagement with correct props", () => {
+	it("renders ApiConfigManager with correct props", () => {
 		renderSettingsView()
 
 		expect(screen.getByTestId("api-config-management")).toBeInTheDocument()
+	})
+
+	it("defaults LiteLLM fields in apiConfiguration if provider is litellm and fields are missing", async () => {
+		const initialExtensionState = {
+			apiConfiguration: {
+				apiProvider: "litellm",
+				// litellmBaseUrl, litellmApiKey, litellmModelId are missing
+			},
+			// Add other necessary state fields for useExtensionState mock
+			currentApiConfigName: "default",
+			listApiConfigMeta: [],
+			uriScheme: "vscode",
+			version: "1.0.0",
+			settingsImportedAt: null,
+		}
+
+		// Mock useExtensionState to return our initial state
+		const mockUseExtensionState = jest.spyOn(require("@/context/ExtensionStateContext"), "useExtensionState")
+		mockUseExtensionState.mockReturnValue(initialExtensionState)
+
+		const { activateTab } = renderSettingsView() // onDone is part of the return, but we don't need it here
+
+		// Ensure providers tab is active (it should be by default, but explicit doesn't hurt)
+		activateTab("providers")
+
+		// Wait for effects to run. Finding the mocked ApiOptions is a good way to ensure it has rendered with updated props.
+		const apiOptionsMock = await screen.findByTestId("api-options-mock")
+		const passedApiConfigString = apiOptionsMock.getAttribute("data-apiconfiguration")
+		const passedApiConfig = JSON.parse(passedApiConfigString!)
+
+		expect(passedApiConfig.apiProvider).toBe("litellm")
+		expect(passedApiConfig.litellmBaseUrl).toBe("http://localhost:4000")
+		expect(passedApiConfig.litellmApiKey).toBe("sk-1234")
+		expect(passedApiConfig.litellmModelId).toBeDefined() // Check it's defined (actual value is litellmDefaultModelId)
+
+		mockUseExtensionState.mockRestore()
+	})
+
+	it("preserves existing LiteLLM fields in apiConfiguration if provider is litellm", async () => {
+		const myCustomKey = "my-custom-key"
+		const myCustomUrl = "http://my-custom-url.com"
+		const myCustomModel = "custom-model/my-model"
+		const initialExtensionState = {
+			apiConfiguration: {
+				apiProvider: "litellm",
+				litellmBaseUrl: myCustomUrl,
+				litellmApiKey: myCustomKey,
+				litellmModelId: myCustomModel,
+			},
+			currentApiConfigName: "default",
+			listApiConfigMeta: [],
+			uriScheme: "vscode",
+			version: "1.0.0",
+			settingsImportedAt: null,
+		}
+
+		const mockUseExtensionState = jest.spyOn(require("@/context/ExtensionStateContext"), "useExtensionState")
+		mockUseExtensionState.mockReturnValue(initialExtensionState)
+
+		const { activateTab } = renderSettingsView()
+		activateTab("providers")
+
+		const apiOptionsMock = await screen.findByTestId("api-options-mock")
+		const passedApiConfigString = apiOptionsMock.getAttribute("data-apiconfiguration")
+		const passedApiConfig = JSON.parse(passedApiConfigString!)
+
+		expect(passedApiConfig.apiProvider).toBe("litellm")
+		expect(passedApiConfig.litellmBaseUrl).toBe(myCustomUrl)
+		expect(passedApiConfig.litellmApiKey).toBe(myCustomKey)
+		expect(passedApiConfig.litellmModelId).toBe(myCustomModel)
+
+		mockUseExtensionState.mockRestore()
 	})
 })
 
