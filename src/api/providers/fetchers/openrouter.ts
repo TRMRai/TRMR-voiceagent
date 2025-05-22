@@ -104,6 +104,27 @@ export async function getOpenRouterModels(options?: ApiHandlerOptions): Promise<
 				modality: architecture?.modality,
 				maxTokens: id.startsWith("anthropic/") ? top_provider?.max_completion_tokens : 0,
 			})
+
+			// Create virtual :thinking variants for Claude 4 models
+			if (id === "anthropic/claude-sonnet-4" && models[id]) {
+				const thinkingId = `${id}:thinking`
+				models[thinkingId] = parseOpenRouterModel({
+					id: thinkingId,
+					model,
+					modality: architecture?.modality,
+					maxTokens: id.startsWith("anthropic/") ? top_provider?.max_completion_tokens : 0,
+				})
+			}
+
+			if (id === "anthropic/claude-opus-4" && models[id]) {
+				const thinkingId = `${id}:thinking`
+				models[thinkingId] = parseOpenRouterModel({
+					id: thinkingId,
+					model,
+					modality: architecture?.modality,
+					maxTokens: id.startsWith("anthropic/") ? top_provider?.max_completion_tokens : 0,
+				})
+			}
 		}
 	} catch (error) {
 		console.error(
@@ -186,7 +207,7 @@ export const parseOpenRouterModel = ({
 		cacheWritesPrice,
 		cacheReadsPrice,
 		description: model.description,
-		thinking: id === "anthropic/claude-3.7-sonnet:thinking",
+		thinking: id.endsWith(":thinking"),
 	}
 
 	// The OpenRouter model definition doesn't give us any hints about
@@ -203,6 +224,19 @@ export const parseOpenRouterModel = ({
 		modelInfo.maxTokens = id.includes("thinking")
 			? anthropicModels["claude-3-7-sonnet-20250219:thinking"].maxTokens
 			: anthropicModels["claude-3-7-sonnet-20250219"].maxTokens
+	}
+
+	// Claude Sonnet 4 and Opus 4 are also "hybrid" thinking models
+	if (id.startsWith("anthropic/claude-sonnet-4")) {
+		modelInfo.maxTokens = id.includes("thinking")
+			? anthropicModels["claude-sonnet-4-20250514:thinking"].maxTokens
+			: anthropicModels["claude-sonnet-4-20250514"].maxTokens
+	}
+
+	if (id.startsWith("anthropic/claude-opus-4")) {
+		modelInfo.maxTokens = id.includes("thinking")
+			? anthropicModels["claude-opus-4-20250514:thinking"].maxTokens
+			: anthropicModels["claude-opus-4-20250514"].maxTokens
 	}
 
 	return modelInfo

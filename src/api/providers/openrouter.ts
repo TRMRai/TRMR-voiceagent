@@ -84,6 +84,9 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 			promptCache,
 		} = await this.fetchModel()
 
+		// For virtual :thinking models, use the base model ID for the API call
+		const apiModelId = modelId.endsWith(":thinking") ? modelId.replace(":thinking", "") : modelId
+
 		// Convert Anthropic messages to OpenAI format.
 		let openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
 			{ role: "system", content: systemPrompt },
@@ -91,7 +94,7 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 		]
 
 		// DeepSeek highly recommends using user instead of system role.
-		if (modelId.startsWith("deepseek/deepseek-r1") || modelId === "perplexity/sonar-reasoning") {
+		if (apiModelId.startsWith("deepseek/deepseek-r1") || apiModelId === "perplexity/sonar-reasoning") {
 			openAiMessages = convertToR1Format([{ role: "user", content: systemPrompt }, ...messages])
 		}
 
@@ -108,10 +111,20 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 
 		// https://openrouter.ai/docs/transforms
 		const completionParams: OpenRouterChatCompletionParams = {
-			model: modelId,
+			model: apiModelId,
 			...(maxTokens && maxTokens > 0 && { max_tokens: maxTokens }),
 			temperature,
-			thinking, // OpenRouter is temporarily supporting this.
+			// For virtual :thinking models, use OpenRouter's reasoning tokens instead of Anthropic's thinking
+			...(modelId.endsWith(":thinking") && thinking
+				? {
+						reasoning: thinking?.budget_tokens
+							? { max_tokens: thinking.budget_tokens }
+							: { effort: reasoningEffort || "medium" },
+					}
+				: {
+						// For non-thinking models, use Anthropic's thinking parameter if available
+						thinking,
+					}),
 			top_p: topP,
 			messages: openAiMessages,
 			stream: true,
@@ -127,7 +140,10 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 				}),
 			// This way, the transforms field will only be included in the parameters when openRouterUseMiddleOutTransform is true.
 			...((this.options.openRouterUseMiddleOutTransform ?? true) && { transforms: ["middle-out"] }),
-			...(REASONING_MODELS.has(modelId) && reasoningEffort && { reasoning: { effort: reasoningEffort } }),
+			// Original reasoning logic for non-virtual thinking models (like Grok)
+			...(REASONING_MODELS.has(modelId) &&
+				reasoningEffort &&
+				!modelId.endsWith(":thinking") && { reasoning: { effort: reasoningEffort } }),
 		}
 
 		const stream = await this.client.chat.completions.create(completionParams)
@@ -144,6 +160,7 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 
 			const delta = chunk.choices[0]?.delta
 
+			// Handle OpenRouter's reasoning tokens (for both virtual :thinking models and other reasoning models)
 			if ("reasoning" in delta && delta.reasoning && typeof delta.reasoning === "string") {
 				yield { type: "reasoning", text: delta.reasoning }
 			}
@@ -215,12 +232,25 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 	}
 
 	async completePrompt(prompt: string) {
-		let { id: modelId, maxTokens, thinking, temperature } = await this.fetchModel()
+		let { id: modelId, maxTokens, thinking, temperature, reasoningEffort } = await this.fetchModel()
+
+		// For virtual :thinking models, use the base model ID for the API call
+		const apiModelId = modelId.endsWith(":thinking") ? modelId.replace(":thinking", "") : modelId
 
 		const completionParams: OpenRouterChatCompletionParams = {
-			model: modelId,
+			model: apiModelId,
 			max_tokens: maxTokens,
-			thinking,
+			// For virtual :thinking models, use OpenRouter's reasoning tokens instead of Anthropic's thinking
+			...(modelId.endsWith(":thinking") && thinking
+				? {
+						reasoning: thinking?.budget_tokens
+							? { max_tokens: thinking.budget_tokens }
+							: { effort: reasoningEffort || "medium" },
+					}
+				: {
+						// For non-thinking models, use Anthropic's thinking parameter if available
+						thinking,
+					}),
 			temperature,
 			messages: [{ role: "user", content: prompt }],
 			stream: false,

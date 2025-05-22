@@ -1921,6 +1921,10 @@ export const PROMPT_CACHING_MODELS = new Set([
 	"anthropic/claude-3.7-sonnet",
 	"anthropic/claude-3.7-sonnet:beta",
 	"anthropic/claude-3.7-sonnet:thinking",
+	"anthropic/claude-sonnet-4",
+	"anthropic/claude-sonnet-4:thinking",
+	"anthropic/claude-opus-4",
+	"anthropic/claude-opus-4:thinking",
 	"anthropic/claude-sonnet-4-20250514",
 	"anthropic/claude-sonnet-4-20250514:thinking",
 	"anthropic/claude-opus-4-20250514",
@@ -1946,6 +1950,10 @@ export const COMPUTER_USE_MODELS = new Set([
 	"anthropic/claude-sonnet-4-20250514:thinking",
 	"anthropic/claude-opus-4-20250514",
 	"anthropic/claude-opus-4-20250514:thinking",
+	"anthropic/claude-sonnet-4",
+	"anthropic/claude-sonnet-4:thinking",
+	"anthropic/claude-opus-4",
+	"anthropic/claude-opus-4:thinking",
 ])
 
 const routerNames = ["openrouter", "requesty", "glama", "unbound", "litellm"] as const

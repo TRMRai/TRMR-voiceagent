@@ -65,7 +65,7 @@ async function getOpenRouterProvidersForModel(modelId: string) {
 				inputPrice,
 				outputPrice,
 				description,
-				thinking: modelId === "anthropic/claude-3.7-sonnet:thinking",
+				thinking: modelId.endsWith(":thinking"),
 				label: providerName,
 			}
 
@@ -75,7 +75,21 @@ async function getOpenRouterProvidersForModel(modelId: string) {
 					modelInfo.supportsPromptCache = true
 					modelInfo.cacheWritesPrice = 3.75
 					modelInfo.cacheReadsPrice = 0.3
-					modelInfo.maxTokens = id === "anthropic/claude-3.7-sonnet:thinking" ? 64_000 : 8192
+					modelInfo.maxTokens = modelId.endsWith(":thinking") ? 64_000 : 8192
+					break
+				case modelId.startsWith("anthropic/claude-sonnet-4"):
+					modelInfo.supportsComputerUse = true
+					modelInfo.supportsPromptCache = true
+					modelInfo.cacheWritesPrice = 3.75
+					modelInfo.cacheReadsPrice = 0.3
+					modelInfo.maxTokens = modelId.endsWith(":thinking") ? 64_000 : 8192
+					break
+				case modelId.startsWith("anthropic/claude-opus-4"):
+					modelInfo.supportsComputerUse = true
+					modelInfo.supportsPromptCache = true
+					modelInfo.cacheWritesPrice = 18.75
+					modelInfo.cacheReadsPrice = 1.5
+					modelInfo.maxTokens = modelId.endsWith(":thinking") ? 64_000 : 8192
 					break
 				case modelId.startsWith("anthropic/claude-3.5-sonnet-20240620"):
 					modelInfo.supportsPromptCache = true
