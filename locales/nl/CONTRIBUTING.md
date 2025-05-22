@@ -64,6 +64,7 @@ Elke bijdrage moet beginnen met een GitHub Issue.
 - **Issue aanmaken:** Gebruik de juiste templates:
     - **Bugs:** "Bug Report"-template.
     - **Functies:** "Detailed Feature Proposal"-template. Goedkeuring vereist voor je begint.
+    - **Snelle vastlegging:** "Quick Issue Capture"-template voor onderhoudsrugs, technische schuld en interne taken.
 - **Issues claimen:** Reageer en wacht op officiële toewijzing.
 
 **PR's zonder goedgekeurde issues kunnen worden gesloten.**
