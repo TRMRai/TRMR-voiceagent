@@ -2,9 +2,9 @@
 
 [日本語](locales/ja/CONTRIBUTING.md) • [한국어](locales/ko/CONTRIBUTING.md) • [Polski](locales/pl/CONTRIBUTING.md) • [Português (BR)](locales/pt-BR/CONTRIBUTING.md) • [Türkçe](locales/tr/CONTRIBUTING.md) • [Tiếng Việt](locales/vi/CONTRIBUTING.md) • [简体中文](locales/zh-CN/CONTRIBUTING.md) • [繁體中文](locales/zh-TW/CONTRIBUTING.md)
 
-# Contributing to Roo Code
+# Contributing to TRMR.ai
 
-Roo Code is a community-driven project, and we deeply value every contribution. To streamline collaboration, we operate on an [Issue-First](#issue-first-approach) basis, meaning all [Pull Requests (PRs)](#submitting-a-pull-request) must first be linked to a GitHub Issue. Please review this guide carefully.
+TRMR.ai is a community-driven project, and we deeply value every contribution. To streamline collaboration, we operate on an [Issue-First](#issue-first-approach) basis, meaning all [Pull Requests (PRs)](#submitting-a-pull-request) must first be linked to a GitHub Issue. Please review this guide carefully.
 
 ## Table of Contents
 
@@ -43,10 +43,10 @@ Our roadmap guides the project's direction. Align your contributions with these 
 
 Mention alignment with these areas in your PRs.
 
-### 3. Join the Roo Code Community
+### 3. Join the TRMR.ai Community
 
-- **Primary:** Join our [Discord](https://discord.gg/roocode) and DM **Hannes Rudolph (`hrudolph`)**.
-- **Alternative:** Experienced contributors can engage directly via [GitHub Projects](https://github.com/orgs/RooCodeInc/projects/1).
+- **Primary:** Join our [Discord](https://discord.gg/trmrcode) and DM **Hannes Rudolph (`hrudolph`)**.
+- **Alternative:** Experienced contributors can engage directly via [GitHub Projects](https://github.com/orgs/trmrCodeInc/projects/1).
 
 ## Finding & Planning Your Contribution
 
@@ -60,7 +60,7 @@ Mention alignment with these areas in your PRs.
 
 All contributions must begin with a GitHub Issue.
 
-- **Check existing issues**: Search [GitHub Issues](https://github.com/RooCodeInc/Roo-Code/issues).
+- **Check existing issues**: Search [GitHub Issues](https://github.com/trmrCodeInc/trmr-Code/issues).
 - **Create an issue**: Use appropriate templates:
     - **Bugs:** "Bug Report" template.
     - **Features:** "Detailed Feature Proposal" template. Approval required before starting.
@@ -70,14 +70,14 @@ All contributions must begin with a GitHub Issue.
 
 ### Deciding What to Work On
 
-- Check the [GitHub Project](https://github.com/orgs/RooCodeInc/projects/1) for unassigned "Good First Issues."
-- For docs, visit [Roo Code Docs](https://github.com/RooCodeInc/Roo-Code-Docs).
+- Check the [GitHub Project](https://github.com/orgs/trmrCodeInc/projects/1) for unassigned "Good First Issues."
+- For docs, visit [TRMR.ai Docs](https://github.com/trmrCodeInc/trmr-Code-Docs).
 
 ### Reporting Bugs
 
 - Check for existing reports first.
-- Create new bugs using the ["Bug Report" template](https://github.com/RooCodeInc/Roo-Code/issues/new/choose).
-- **Security issues**: Report privately via [security advisories](https://github.com/RooCodeInc/Roo-Code/security/advisories/new).
+- Create new bugs using the ["Bug Report" template](https://github.com/trmrCodeInc/trmr-Code/issues/new/choose).
+- **Security issues**: Report privately via [security advisories](https://github.com/trmrCodeInc/trmr-Code/security/advisories/new).
 
 ## Development & Submission Process
 
@@ -86,7 +86,7 @@ All contributions must begin with a GitHub Issue.
 1. **Fork & Clone:**
 
 ```
-git clone https://github.com/YOUR_USERNAME/Roo-Code.git
+git clone https://github.com/YOUR_USERNAME/trmr-Code.git
 ```
 
 2. **Install Dependencies:**
@@ -126,4 +126,4 @@ pnpm install
 
 ## Legal
 
-By contributing, you agree your contributions will be licensed under the Apache 2.0 License, consistent with Roo Code's licensing.
+By contributing, you agree your contributions will be licensed under the Apache 2.0 License, consistent with TRMR.ai's licensing.
